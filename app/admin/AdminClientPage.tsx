@@ -10,6 +10,8 @@ import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
@@ -24,6 +26,13 @@ export default function AdminClientPage() {
   const [editContent, setEditContent] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  // Snackbar state
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: "success" | "error";
+  }>({ open: false, message: "", severity: "success" });
 
   useEffect(() => {
     fetch("/api/posts")
@@ -42,20 +51,48 @@ export default function AdminClientPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, content }),
     });
+    if (!res.ok) {
+      setSnackbar({
+        open: true,
+        message: "Fehler beim Erstellen des Beitrags.",
+        severity: "error",
+      });
+      return;
+    }
     const newPost = await res.json();
     setPosts([...posts, newPost]);
     setTitle("");
     setContent("");
+    setSnackbar({
+      open: true,
+      message:
+        "Beitrag erstellt. Änderungen können bis zu 1 Minute dauern, bis sie überall sichtbar sind.",
+      severity: "success",
+    });
   }
 
   async function handleDelete(id: number) {
-    await fetch("/api/posts", {
+    const res = await fetch("/api/posts", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
+    if (!res.ok) {
+      setSnackbar({
+        open: true,
+        message: "Fehler beim Löschen des Beitrags.",
+        severity: "error",
+      });
+      return;
+    }
     setPosts(posts.filter((p) => p.id !== id));
     if (editId === id) setEditId(null);
+    setSnackbar({
+      open: true,
+      message:
+        "Beitrag gelöscht. Änderungen können bis zu 1 Minute dauern, bis sie überall sichtbar sind.",
+      severity: "success",
+    });
   }
 
   function handleEditSelect(post: Post) {
@@ -72,11 +109,25 @@ export default function AdminClientPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: editId, title: editTitle, content: editContent }),
     });
+    if (!res.ok) {
+      setSnackbar({
+        open: true,
+        message: "Fehler beim Bearbeiten des Beitrags.",
+        severity: "error",
+      });
+      return;
+    }
     const updated = await res.json();
     setPosts(posts.map((p) => (p.id === editId ? updated : p)));
     setEditId(null);
     setEditTitle("");
     setEditContent("");
+    setSnackbar({
+      open: true,
+      message:
+        "Beitrag bearbeitet. Änderungen können bis zu 1 Minute dauern, bis sie überall sichtbar sind.",
+      severity: "success",
+    });
   }
 
   function handleEditCancel() {
@@ -84,6 +135,14 @@ export default function AdminClientPage() {
     setEditTitle("");
     setEditContent("");
   }
+
+  const handleSnackbarClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === "clickaway") return;
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
@@ -204,6 +263,23 @@ export default function AdminClientPage() {
           ))}
         </Stack>
       )}
+
+      {/* Snackbar für Hinweise */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {/* Inline Dark Theme für React Quill */}
       <style jsx global>{`

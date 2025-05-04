@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { put, head } from "@vercel/blob";
 
-// Hilfsfunktion: Posts lesen
+// Hilfsfunktion: Beiträge lesen
 async function readPosts() {
   try {
     const meta = await head("posts.json");
@@ -15,7 +15,7 @@ async function readPosts() {
   }
 }
 
-// Hilfsfunktion: Posts schreiben
+// Hilfsfunktion: Beiträge schreiben
 async function writePosts(posts: any[]) {
   try {
     await put("posts.json", JSON.stringify(posts, null, 2), {
@@ -30,7 +30,7 @@ async function writePosts(posts: any[]) {
   }
 }
 
-// GET: Alle Beiträge anzeigen
+// GET: Alle Beiträge abrufen
 export async function GET() {
   try {
     const posts = await readPosts();
