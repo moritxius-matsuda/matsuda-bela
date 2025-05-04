@@ -1,5 +1,6 @@
 "use client";
 
+import { Analytics } from "@vercel/analytics/react"
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import Container from "@mui/material/Container";
@@ -35,6 +36,7 @@ export default function HomePage() {
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
       {/* Projektbeschreibung */}
+      <Analytics/>
       <Typography variant="h3" color="primary" gutterBottom>
         Matsuda-Projekt
       </Typography>
