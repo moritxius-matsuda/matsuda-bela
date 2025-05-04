@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { useUser } from "@clerk/nextjs";
 
+
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
 const ALLOWED_ROLES = ["admin", "console", "jcwsmp"];
