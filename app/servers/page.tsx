@@ -1,3 +1,4 @@
+// app/servers/page.tsx
 import { revalidatePath } from "next/cache";
 import {
   Container, Typography, Card, CardContent, CardActions, Button,
@@ -13,42 +14,40 @@ const API_KEY = process.env.MCSS_API_KEY!;
 const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
 
 const statusMap: Record<number, { label: string; color: "success" | "error" | "warning" | "default" }> = {
-  0: { label: "Unbekannt", color: "default" },
-  1: { label: "Gestoppt", color: "error" },
+  0: { label: "Offline", color: "error" },
+  1: { label: "Online", color: "success" },
   2: { label: "Startet", color: "warning" },
-  3: { label: "Online", color: "success" },
-  4: { label: "Stoppt", color: "warning" },
-  5: { label: "Neustartet", color: "warning" },
-  6: { label: "Wird beendet", color: "warning" },
+  3: { label: "Stoppt", color: "warning" },
+  4: { label: "Neustartet", color: "warning" },
 };
 
-async function getServerInfo() {
-  const res = await fetch(`${API_URL}/servers`, {
+async function getServerStatus() {
+  const res = await fetch(`${API_URL}/servers/${SERVER_ID}`, {
     headers: {
       "apiKey": API_KEY,
       "Content-Type": "application/json",
     },
     cache: "no-store",
   });
-  if (!res.ok) throw new Error("Fehler beim Laden der Serverdaten");
-  const servers = await res.json();
-  return servers.find((s: any) => s.serverId === SERVER_ID);
+  if (!res.ok) throw new Error("Fehler beim Laden des Serverstatus");
+  return await res.json();
 }
 
 async function getServerConsole() {
-  const res = await fetch(`${API_URL}/servers/${SERVER_ID}/console`, {
-    method: "POST",
-    headers: {
-      "apiKey": API_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ amountOfLines: 50, reversed: true }),
-    cache: "no-store",
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.lines || [];
-}
+    const res = await fetch(`${API_URL}/servers/${SERVER_ID}/console`, {
+      method: "POST",
+      headers: {
+        "apiKey": API_KEY,
+        "amountOfLines": "-1",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ amountOfLines: 50, reversed: true }),
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.lines || [];
+  }
 
 // Server Action für Start/Stop/Restart
 async function serverAction(action: "start" | "stop" | "restart") {
@@ -70,10 +69,10 @@ async function serverAction(action: "start" | "stop" | "restart") {
 }
 
 export default async function ServersPage() {
-  let server = null;
+  let server: any = null;
   let consoleLines: string[] = [];
   try {
-    server = await getServerInfo();
+    server = await getServerStatus();
     consoleLines = await getServerConsole();
   } catch (e) {
     return (
@@ -123,7 +122,7 @@ export default async function ServersPage() {
                 variant="contained"
                 color="success"
                 startIcon={<PowerSettingsNewIcon />}
-                disabled={status === 3}
+                disabled={status === 1}
                 type="submit"
               >
                 Start
@@ -134,7 +133,7 @@ export default async function ServersPage() {
                 variant="contained"
                 color="warning"
                 startIcon={<RestartAltIcon />}
-                disabled={status !== 3}
+                disabled={status !== 1}
                 type="submit"
               >
                 Neustart
@@ -145,7 +144,7 @@ export default async function ServersPage() {
                 variant="contained"
                 color="error"
                 startIcon={<StopIcon />}
-                disabled={status !== 3}
+                disabled={status !== 1}
                 type="submit"
               >
                 Stop
