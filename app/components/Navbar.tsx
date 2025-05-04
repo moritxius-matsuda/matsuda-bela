@@ -36,8 +36,26 @@ export default function Navbar() {
 
   return (
     <AppBar position="static" color="primary" enableColorOnDark>
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", gap: 2 }}>
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          gap: 2,
+        }}
+      >
+        {/* Link-Bereich */}
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+            flexDirection: { xs: "column", sm: "row" },
+            alignItems: { xs: "flex-start", sm: "center" },
+            minWidth: 0,
+          }}
+        >
           <Button color="inherit" component={Link} href="/">
             Home
           </Button>
@@ -104,16 +122,34 @@ export default function Navbar() {
             Impressum
           </Button>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+
+        {/* Rechtsbereich */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            flexWrap: "wrap",
+            justifyContent: { xs: "flex-start", sm: "flex-end" },
+            mt: { xs: 2, sm: 0 },
+          }}
+        >
           <Typography
             variant="body2"
-            sx={{ ml: 2, color: "rgba(255,255,255,0.7)", userSelect: "none" }}
+            sx={{
+              ml: 2,
+              color: "rgba(255,255,255,0.7)",
+              userSelect: "none",
+              whiteSpace: "nowrap",
+            }}
           >
             Made with <span style={{ color: "red" }}>❤</span> by Moritz Béla Meier
           </Typography>
           {isSignedIn ? (
             <>
-              <Typography variant="body1">{user?.fullName}</Typography>
+              <Typography variant="body1" sx={{ whiteSpace: "nowrap" }}>
+                {user?.fullName}
+              </Typography>
               <UserButton afterSignOutUrl="/" />
             </>
           ) : (
