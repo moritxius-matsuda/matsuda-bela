@@ -1,5 +1,6 @@
 "use client";
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Analytics } from "@vercel/analytics/react"
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
@@ -36,6 +37,7 @@ export default function HomePage() {
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
       {/* Projektbeschreibung */}
+      <SpeedInsights/>
       <Analytics/>
       <Typography variant="h3" color="primary" gutterBottom>
         Matsuda-Projekt
