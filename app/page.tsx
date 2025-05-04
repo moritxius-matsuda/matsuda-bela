@@ -1,3 +1,5 @@
+"use client";
+import { useUser } from "@clerk/nextjs";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -5,12 +7,10 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Link from "next/link";
 
-type HomePageProps = {
-  isSignedIn: boolean;
-  role?: string;
-};
+export default function HomePage() {
+  const { isSignedIn, user } = useUser();
+  const role = user?.publicMetadata?.role as string | undefined;
 
-export default function HomePage({ isSignedIn, role }: HomePageProps) {
   return (
     <Box sx={{ py: 6, maxWidth: 900, mx: "auto" }}>
       <Typography variant="h4" gutterBottom>
