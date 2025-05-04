@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { useUser } from "@clerk/nextjs"; // Clerk für User & Rolle
 import {
   Box,
   Typography,
@@ -9,16 +10,45 @@ import {
   TextField,
   Stack,
   Paper,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
 const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
 const SERVER_NAME = "JCWSMP";
-
-console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY + "e2aa")
+const ALLOWED_ROLES = ["admin", "console", "jcwsmp"];
 
 export default function ConsolePage() {
+  // Clerk User-Objekt holen
+  const { isLoaded, isSignedIn, user } = useUser();
+  const role = user?.publicMetadata?.role as string | undefined;
+
+  // Zugriff prüfen
+  if (!isLoaded) {
+    return (
+      <Box sx={{ p: 4, textAlign: "center" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+  if (!isSignedIn) {
+    return (
+      <Alert severity="warning" sx={{ mt: 4 }}>
+        Du musst angemeldet sein, um auf die Konsole zuzugreifen.
+      </Alert>
+    );
+  }
+  if (!role || !ALLOWED_ROLES.includes(role)) {
+    return (
+      <Alert severity="error" sx={{ mt: 4 }}>
+        Kein Zugriff – diese Seite ist nur für Admins, Console und JCWSMP!
+      </Alert>
+    );
+  }
+
+  // --- ab hier wie gehabt ---
   const [consoleLines, setConsoleLines] = useState<string[]>([]);
   const [command, setCommand] = useState("");
   const [sending, setSending] = useState(false);
