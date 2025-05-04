@@ -70,7 +70,7 @@ export default function ConsolePage() {
   const sendCommand = async () => {
     if (!command.trim()) return;
     setSending(true);
-    await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
+    await fetch(`${API_URL}/servers/${SERVER_ID}/execute/command`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -85,7 +85,7 @@ export default function ConsolePage() {
   return (
     <Box sx={{ maxWidth: 900, mx: "auto", py: 6 }}>
       <Typography variant="h4" gutterBottom>
-        MCSS Server-Konsole
+        Jarrett's Crazy World SMP
       </Typography>
       <Card sx={{ mb: 3 }}>
         <CardContent>
