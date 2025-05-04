@@ -68,6 +68,9 @@ export default function Navbar() {
           <Button component={Link} href="/impressum" color="inherit">
             Impressum
           </Button>
+          <Button color="inherit" component={Link} href="/spam-policy">
+            SPAM-Policy
+          </Button>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Typography
