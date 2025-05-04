@@ -31,6 +31,12 @@ export default function Navbar() {
           </Button>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Typography
+            variant="body2"
+            sx={{ ml: 2, color: "rgba(255,255,255,0.7)", userSelect: "none" }}
+          >
+            Made with <span style={{ color: "red" }}>❤</span> by Moritz Béla Meier
+          </Typography>
           {isSignedIn ? (
             <>
               <Typography variant="body1">{user?.fullName}</Typography>
