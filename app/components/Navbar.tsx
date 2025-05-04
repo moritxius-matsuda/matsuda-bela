@@ -21,9 +21,6 @@ export default function Navbar() {
           <Button color="inherit" component={Link} href="/">
             Home
           </Button>
-          <Button color="inherit" component={Link} href="/uptime">
-            Uptime
-          </Button>
           {isSignedIn && (
             <Button color="inherit" component={Link} href="/admin">
               Admin
