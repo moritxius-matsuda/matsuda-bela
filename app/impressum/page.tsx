@@ -25,7 +25,7 @@ export default function ImpressumPage() {
         <Typography variant="body1" paragraph>
           <strong>Kontakt:</strong><br />
           E-Mail: behoerde@moritxius.de<br />
-          Telefon: +49 15902291916
+          Telefon: +49 651 6860593
         </Typography>
         <Typography variant="body1" paragraph>
           <strong>Verbraucherstreitbeilegung/Universalschlichtungsstelle:</strong><br />
@@ -47,7 +47,7 @@ export default function ImpressumPage() {
           <strong>Änderungen:</strong><br />
           Wir behalten uns vor, dieses Impressum jederzeit zu ändern. Es gilt stets die zum Zeitpunkt des Besuchs unserer Website aktuelle Fassung.<br />
           <br />
-          <strong>Stand:</strong> 23.06.2024
+          <strong>Stand:</strong> 04.05.2024
         </Typography>
       </Box>
     </Container>
