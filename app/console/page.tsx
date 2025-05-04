@@ -7,6 +7,8 @@ import {
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
 
+console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY)
+
 type Server = {
   guid: string;
   name: string;
