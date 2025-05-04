@@ -34,20 +34,22 @@ async function getServerStatus() {
 }
 
 async function getServerConsole() {
-    const res = await fetch(`${API_URL}/servers/${SERVER_ID}/console`, {
-      method: "POST",
-      headers: {
-        "apiKey": API_KEY,
-        "amountOfLines": "-1",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ amountOfLines: 50, reversed: true }),
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${API_URL}/servers/${SERVER_ID}/console?amountOfLines=-1`,
+      {
+        method: "POST",
+        headers: {
+          "apiKey": API_KEY,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }
+    );
     if (!res.ok) return [];
     const data = await res.json();
     return data.lines || [];
   }
+  
 
 // Server Action für Start/Stop/Restart
 async function serverAction(action: "start" | "stop" | "restart") {
