@@ -118,7 +118,7 @@ export default function ConsolePage() {
                 InputProps={{ readOnly: true }}
                 sx={{ minWidth: 220 }}
               />
-              <Stack direction="row" spacing={1}>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
                 <Button
                   variant="contained"
                   color="success"
@@ -151,6 +151,16 @@ export default function ConsolePage() {
                 >
                   Restart
                 </Button>
+                {!isConnected && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={startPolling}
+                    sx={{ marginLeft: "auto" }}
+                  >
+                    Verbindung herstellen
+                  </Button>
+                )}
               </Stack>
             </Stack>
           </CardContent>
@@ -197,16 +207,6 @@ export default function ConsolePage() {
           </Button>
         </Stack>
       </Box>
-
-      {/* Footer mit Reconnect-Button */}
-      {!isConnected && (
-        <Box sx={{ p: 2, borderTop: "1px solid #ccc", textAlign: "center" }}>
-          <Button variant="contained" onClick={startPolling}>
-            Verbindung neu herstellen
-          </Button>
-        </Box>
-      )}
     </Box>
   );
 }
-
