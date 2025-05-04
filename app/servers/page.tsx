@@ -1,10 +1,12 @@
 import { revalidatePath } from "next/cache";
-import { Container, Typography, Card, CardContent, CardActions, Button, Box, Divider, CircularProgress, Paper, Chip, Stack, Snackbar, Alert } from "@mui/material";
+import {
+  Container, Typography, Card, CardContent, CardActions, Button,
+  Box, Divider, Paper, Chip, Stack
+} from "@mui/material";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import StopIcon from "@mui/icons-material/Stop";
 import TerminalIcon from "@mui/icons-material/Terminal";
-import { useState } from "react";
 
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.MCSS_API_KEY!;
@@ -23,7 +25,7 @@ const statusMap: Record<number, { label: string; color: "success" | "error" | "w
 async function getServerInfo() {
   const res = await fetch(`${API_URL}/servers`, {
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      "apiKey": API_KEY,
       "Content-Type": "application/json",
     },
     cache: "no-store",
@@ -37,7 +39,7 @@ async function getServerConsole() {
   const res = await fetch(`${API_URL}/servers/${SERVER_ID}/console`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      "apiKey": API_KEY,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ amountOfLines: 50, reversed: true }),
@@ -48,24 +50,23 @@ async function getServerConsole() {
   return data.lines || [];
 }
 
-// Server Actions für Start/Stop/Restart
+// Server Action für Start/Stop/Restart
 async function serverAction(action: "start" | "stop" | "restart") {
   "use server";
   let actionCode = 0;
   if (action === "stop") actionCode = 1;
   if (action === "start") actionCode = 2;
   if (action === "restart") actionCode = 4;
-  const res = await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
+  await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${API_KEY}`,
+      "apiKey": API_KEY,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ action: actionCode }),
     cache: "no-store",
   });
   revalidatePath("/servers");
-  return res.ok;
 }
 
 export default async function ServersPage() {
@@ -116,8 +117,8 @@ export default async function ServersPage() {
             <strong>Pfad:</strong> {server?.pathToFolder}
           </Typography>
           {/* Server Actions als Formulare */}
-          <form action={async () => { await serverAction("start"); }}>
-            <CardActions sx={{ gap: 2 }}>
+          <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+            <form action={async () => { "use server"; await serverAction("start"); }}>
               <Button
                 variant="contained"
                 color="success"
@@ -127,10 +128,8 @@ export default async function ServersPage() {
               >
                 Start
               </Button>
-            </CardActions>
-          </form>
-          <form action={async () => { await serverAction("restart"); }}>
-            <CardActions sx={{ gap: 2 }}>
+            </form>
+            <form action={async () => { "use server"; await serverAction("restart"); }}>
               <Button
                 variant="contained"
                 color="warning"
@@ -140,10 +139,8 @@ export default async function ServersPage() {
               >
                 Neustart
               </Button>
-            </CardActions>
-          </form>
-          <form action={async () => { await serverAction("stop"); }}>
-            <CardActions sx={{ gap: 2 }}>
+            </form>
+            <form action={async () => { "use server"; await serverAction("stop"); }}>
               <Button
                 variant="contained"
                 color="error"
@@ -153,8 +150,8 @@ export default async function ServersPage() {
               >
                 Stop
               </Button>
-            </CardActions>
-          </form>
+            </form>
+          </Stack>
           <Divider sx={{ my: 2 }} />
           <Typography variant="subtitle2" gutterBottom>
             Console Output (readonly)
