@@ -4,9 +4,8 @@ export default clerkMiddleware();
 
 export const config = {
   matcher: [
-    // Passe die Matcher wie benötigt an
-    "/((?!.*\\..*|_next).*)",
-    "/",
+    "/((?!.*\\..*|_next).*)", // alle Seiten außer statische Dateien und _next
+    "/", 
     "/(api|trpc)(.*)",
   ],
 };

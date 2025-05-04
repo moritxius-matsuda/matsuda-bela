@@ -43,7 +43,7 @@ export default function HomePage() {
               </Typography>
               <Button
                 component={Link}
-                href="/console?name=JCWSMP&server=86c006fd-bdbb-4227-86c8-f9a8ceb73216"
+                href="/console"
                 variant="contained"
                 color="primary"
                 fullWidth
