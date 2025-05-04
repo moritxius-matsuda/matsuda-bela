@@ -29,7 +29,7 @@ export default function ConsolePage() {
   useEffect(() => {
     const fetchConsole = () => {
       fetch(
-        `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=true`,
+        `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=false`,
         {
           headers: { apikey: API_KEY },
         }
