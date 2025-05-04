@@ -2,16 +2,16 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import ConsoleClient from "./ConsoleClient";
 
-const ALLOWED_ROLES = ["console"];
+const ACCESS_KEYS = ["console"];
 
 export default async function ConsolePage() {
   const user = await currentUser();
 
-  // Hole das Rollen-Array aus publicMetadata
-  const userRoles = user?.publicMetadata?.roles as string[] | undefined;
+  // Hole das publicMetadata-Objekt
+  const meta = user?.publicMetadata as Record<string, any> | undefined;
 
-  // Prüfe, ob mindestens eine erlaubte Rolle vorhanden ist
-  const hasAccess = userRoles?.some(role => ALLOWED_ROLES.includes(role));
+  // Prüfe, ob mindestens einer der ACCESS_KEYS auf 1 steht
+  const hasAccess = meta && ACCESS_KEYS.some(key => meta[key] === 1);
 
   if (!user || !hasAccess) {
     redirect("/unauthorized");

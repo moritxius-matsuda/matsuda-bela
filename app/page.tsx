@@ -7,14 +7,15 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Link from "next/link";
 
-const JCWSMP_ALLOWED_ROLES = ["jcwsmp"];
+const JCWSMP_ACCESS_KEYS = ["jcwsmp"];
 
 export default function HomePage() {
   const { isSignedIn, user } = useUser();
-  // Hole das Rollen-Array aus publicMetadata
-  const userRoles = user?.publicMetadata?.roles as string[] | undefined;
-  // Prüfe, ob mindestens eine erlaubte Rolle dabei ist
-  const hasJCWSMPAccess = userRoles?.some(role => JCWSMP_ALLOWED_ROLES.includes(role));
+
+  // Hole das publicMetadata-Objekt
+  const meta = user?.publicMetadata as Record<string, any> | undefined;
+  // Prüfe, ob mindestens einer der Keys auf 1 steht
+  const hasJCWSMPAccess = meta && JCWSMP_ACCESS_KEYS.some(key => meta[key] === 1);
 
   return (
     <Box sx={{ py: 6, maxWidth: 900, mx: "auto" }}>
@@ -38,7 +39,7 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
-        {/* JCWSMP Kachel, für mehrere Rollen */}
+        {/* JCWSMP Kachel, für mehrere Zugriffsarten */}
         {isSignedIn && hasJCWSMPAccess && (
           <Card sx={{ flex: "1 1 250px", minWidth: 250 }}>
             <CardContent>

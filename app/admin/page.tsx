@@ -2,16 +2,16 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import AdminClientPage from "./AdminClientPage";
 
-const ALLOWED_ROLES = ["admin"];
+const ACCESS_KEYS = ["admin"];
 
 export default async function AdminPage() {
   const user = await currentUser();
 
-  // Hole das Rollen-Array aus publicMetadata
-  const userRoles = user?.publicMetadata?.roles as string[] | undefined;
+  // Hole die publicMetadata als Objekt
+  const meta = user?.publicMetadata as Record<string, any> | undefined;
 
-  // Prüfe, ob mindestens eine erlaubte Rolle vorhanden ist
-  const hasAccess = userRoles?.some(role => ALLOWED_ROLES.includes(role));
+  // Prüfe, ob einer der ACCESS_KEYS auf 1 steht
+  const hasAccess = meta && ACCESS_KEYS.some(key => meta[key] === 1);
 
   if (!user || !hasAccess) {
     redirect("/unauthorized");
