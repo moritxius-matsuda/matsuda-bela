@@ -1,8 +1,8 @@
-// app/servers/page.tsx
-import { revalidatePath } from "next/cache";
+"use client";
+import { useEffect, useState, useRef } from "react";
 import {
-  Container, Typography, Card, CardContent, CardActions, Button,
-  Box, Divider, Paper, Chip, Stack
+  Container, Typography, Card, CardContent, Button,
+  Box, Divider, Paper, Chip, Stack, CircularProgress
 } from "@mui/material";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -21,70 +21,85 @@ const statusMap: Record<number, { label: string; color: "success" | "error" | "w
   4: { label: "Neustartet", color: "warning" },
 };
 
-async function getServerStatus() {
-  const res = await fetch(`${API_URL}/servers/${SERVER_ID}`, {
-    headers: {
-      "apiKey": API_KEY,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Fehler beim Laden des Serverstatus");
-  return await res.json();
-}
+export default function ServersPage() {
+  const [server, setServer] = useState<any>(null);
+  const [consoleLines, setConsoleLines] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(false);
 
-async function getServerConsole() {
-    const res = await fetch(
-      `${API_URL}/servers/${SERVER_ID}/console?amountOfLines=-1`,
-      {
+  // Polling für Status und Konsole
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    const fetchData = async () => {
+      setLoading(true);
+      // Serverstatus
+      const statusRes = await fetch(`${API_URL}/servers/${SERVER_ID}`, {
         method: "GET",
         headers: {
           "apiKey": API_KEY,
           "Content-Type": "application/json",
         },
-        cache: "no-store",
-      }
-    );
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.lines || [];
-  }
-  
+      });
+      const serverData = await statusRes.json();
+      setServer(serverData);
 
-// Server Action für Start/Stop/Restart
-async function serverAction(action: "start" | "stop" | "restart") {
-  "use server";
-  let actionCode = 0;
-  if (action === "stop") actionCode = 1;
-  if (action === "start") actionCode = 2;
-  if (action === "restart") actionCode = 4;
-  await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
-    method: "POST",
-    headers: {
-      "apiKey": API_KEY,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ action: actionCode }),
-    cache: "no-store",
-  });
-  revalidatePath("/servers");
-}
+      // Konsole
+      const consoleRes = await fetch(
+        `${API_URL}/servers/${SERVER_ID}/console?amountOfLines=-1`,
+        {
+          method: "GET",
+          headers: {
+            "apiKey": API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const consoleData = await consoleRes.json();
+      setConsoleLines(consoleData.lines || []);
+      setLoading(false);
+    };
 
-export default async function ServersPage() {
-  let server: any = null;
-  let consoleLines: string[] = [];
-  try {
-    server = await getServerStatus();
-    consoleLines = await getServerConsole();
-  } catch (e) {
-    return (
-      <Container maxWidth="md" sx={{ py: 6 }}>
-        <Typography color="error">Fehler beim Laden der Serverdaten.</Typography>
-      </Container>
-    );
-  }
+    fetchData();
+    interval = setInterval(fetchData, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Aktionen: Start/Stop/Restart
+  const handleAction = async (action: "start" | "stop" | "restart") => {
+    setActionLoading(true);
+    let actionCode = 0;
+    if (action === "stop") actionCode = 1;
+    if (action === "start") actionCode = 2;
+    if (action === "restart") actionCode = 4;
+    await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
+      method: "POST",
+      headers: {
+        "apiKey": API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action: actionCode }),
+    });
+    setActionLoading(false);
+  };
 
   const status = server?.status ?? 0;
+
+  const consoleRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (consoleRef.current) {
+      consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
+    }
+  }, [consoleLines]);
+
+  if (loading && !server) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
@@ -117,47 +132,42 @@ export default async function ServersPage() {
           <Typography variant="body2" sx={{ mb: 2 }}>
             <strong>Pfad:</strong> {server?.pathToFolder}
           </Typography>
-          {/* Server Actions als Formulare */}
+          {/* Server Actions */}
           <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-            <form action={async () => { "use server"; await serverAction("start"); }}>
-              <Button
-                variant="contained"
-                color="success"
-                startIcon={<PowerSettingsNewIcon />}
-                disabled={status === 1}
-                type="submit"
-              >
-                Start
-              </Button>
-            </form>
-            <form action={async () => { "use server"; await serverAction("restart"); }}>
-              <Button
-                variant="contained"
-                color="warning"
-                startIcon={<RestartAltIcon />}
-                disabled={status !== 1}
-                type="submit"
-              >
-                Neustart
-              </Button>
-            </form>
-            <form action={async () => { "use server"; await serverAction("stop"); }}>
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={<StopIcon />}
-                disabled={status !== 1}
-                type="submit"
-              >
-                Stop
-              </Button>
-            </form>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<PowerSettingsNewIcon />}
+              disabled={status === 1 || actionLoading}
+              onClick={() => handleAction("start")}
+            >
+              Start
+            </Button>
+            <Button
+              variant="contained"
+              color="warning"
+              startIcon={<RestartAltIcon />}
+              disabled={status !== 1 || actionLoading}
+              onClick={() => handleAction("restart")}
+            >
+              Neustart
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<StopIcon />}
+              disabled={status !== 1 || actionLoading}
+              onClick={() => handleAction("stop")}
+            >
+              Stop
+            </Button>
           </Stack>
           <Divider sx={{ my: 2 }} />
           <Typography variant="subtitle2" gutterBottom>
             Console Output (readonly)
           </Typography>
           <Paper
+            ref={consoleRef}
             variant="outlined"
             sx={{
               bgcolor: "#111",
