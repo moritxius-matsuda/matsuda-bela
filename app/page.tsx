@@ -43,7 +43,7 @@ export default function HomePage() {
               </Typography>
               <Button
                 component={Link}
-                href="https://console.moritxius.nl/"
+                href="/console"
                 variant="contained"
                 color="primary"
                 fullWidth
