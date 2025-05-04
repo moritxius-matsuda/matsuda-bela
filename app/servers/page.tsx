@@ -1,16 +1,13 @@
-"use client";
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
-import {
-  Container, Typography, Card, CardContent, CardActions,
-  Button, Box, Divider, CircularProgress, Paper, Chip, Stack, Snackbar, Alert
-} from "@mui/material";
+import { revalidatePath } from "next/cache";
+import { Container, Typography, Card, CardContent, CardActions, Button, Box, Divider, CircularProgress, Paper, Chip, Stack, Snackbar, Alert } from "@mui/material";
 import PowerSettingsNewIcon from "@mui/icons-material/PowerSettingsNew";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import StopIcon from "@mui/icons-material/Stop";
 import TerminalIcon from "@mui/icons-material/Terminal";
+import { useState } from "react";
 
+const API_URL = "https://console.moritxius.nl/api/v2";
+const API_KEY = process.env.MCSS_API_KEY!;
 const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
 
 const statusMap: Record<number, { label: string; color: "success" | "error" | "warning" | "default" }> = {
@@ -23,128 +20,69 @@ const statusMap: Record<number, { label: string; color: "success" | "error" | "w
   6: { label: "Wird beendet", color: "warning" },
 };
 
-export default function ServersPage() {
-  // Clerk User-Check
-  const { isSignedIn, isLoaded, user } = useUser();
-  const router = useRouter();
+async function getServerInfo() {
+  const res = await fetch(`${API_URL}/servers`, {
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Fehler beim Laden der Serverdaten");
+  const servers = await res.json();
+  return servers.find((s: any) => s.serverId === SERVER_ID);
+}
 
-  // Weiterleitung bei fehlender Berechtigung
-  useEffect(() => {
-    if (!isLoaded) return;
-    const role = user?.publicMetadata?.role;
-    if (!isSignedIn) {
-      router.replace("/sign-in");
-    } else if (role !== "admin" && role !== "jcwsmp") {
-      router.replace("/");
-    }
-  }, [isLoaded, isSignedIn, user, router]);
+async function getServerConsole() {
+  const res = await fetch(`${API_URL}/servers/${SERVER_ID}/console`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ amountOfLines: 50, reversed: true }),
+    cache: "no-store",
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.lines || [];
+}
 
-  // Während Clerk lädt: Spinner
-  if (!isLoaded) {
+// Server Actions für Start/Stop/Restart
+async function serverAction(action: "start" | "stop" | "restart") {
+  "use server";
+  let actionCode = 0;
+  if (action === "stop") actionCode = 1;
+  if (action === "start") actionCode = 2;
+  if (action === "restart") actionCode = 4;
+  const res = await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ action: actionCode }),
+    cache: "no-store",
+  });
+  revalidatePath("/servers");
+  return res.ok;
+}
+
+export default async function ServersPage() {
+  let server = null;
+  let consoleLines: string[] = [];
+  try {
+    server = await getServerInfo();
+    consoleLines = await getServerConsole();
+  } catch (e) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <CircularProgress />
-      </Box>
+      <Container maxWidth="md" sx={{ py: 6 }}>
+        <Typography color="error">Fehler beim Laden der Serverdaten.</Typography>
+      </Container>
     );
   }
 
-  // Während Weiterleitung: nichts anzeigen
-  const role = user?.publicMetadata?.role;
-  if (!isSignedIn || (role !== "admin" && role !== "jcwsmp")) {
-    return null;
-  }
-
-  // --- Server Card Logik ---
-  const [server, setServer] = useState<any>(null);
-  const [status, setStatus] = useState<number>(0);
-  const [consoleLines, setConsoleLines] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
-
-  // Polling für Status und Konsole
-  useEffect(() => {
-    let interval: any;
-    let consoleInterval: any;
-
-    const fetchServer = async () => {
-      setLoading(true);
-      const res = await fetch("/api/mcss", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ endpoint: "/servers" }),
-      });
-      const data = await res.json();
-      const found = data.find((s: any) => s.serverId === SERVER_ID);
-      setServer(found);
-      setStatus(found?.status ?? 0);
-      setLoading(false);
-    };
-
-    const fetchConsole = async () => {
-      const res = await fetch("/api/mcss", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          endpoint: `/servers/${SERVER_ID}/console`,
-          method: "POST",
-          body: { amountOfLines: 50, reversed: true },
-        }),
-      });
-      const data = await res.json();
-      setConsoleLines(data.lines || []);
-    };
-
-    fetchServer();
-    fetchConsole();
-    interval = setInterval(fetchServer, 5000);
-    consoleInterval = setInterval(fetchConsole, 2000);
-
-    return () => {
-      clearInterval(interval);
-      clearInterval(consoleInterval);
-    };
-  }, []);
-
-  // Aktionen
-  async function handleAction(action: "start" | "stop" | "restart") {
-    setActionLoading(true);
-    let actionCode = 0;
-    if (action === "stop") actionCode = 1;
-    if (action === "start") actionCode = 2;
-    if (action === "restart") actionCode = 4;
-    const res = await fetch("/api/mcss", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        endpoint: `/servers/${SERVER_ID}/execute/action`,
-        method: "POST",
-        body: { action: actionCode },
-      }),
-    });
-    if (res.ok) {
-      setSnackbar({
-        open: true,
-        message: `Aktion "${action}" ausgeführt. Status wird aktualisiert.`,
-        severity: "success",
-      });
-    } else {
-      setSnackbar({
-        open: true,
-        message: `Fehler bei Aktion "${action}".`,
-        severity: "error",
-      });
-    }
-    setActionLoading(false);
-  }
-
-  // Scroll-Ref für Konsole
-  const consoleRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (consoleRef.current) {
-      consoleRef.current.scrollTop = consoleRef.current.scrollHeight;
-    }
-  }, [consoleLines]);
+  const status = server?.status ?? 0;
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
@@ -177,41 +115,51 @@ export default function ServersPage() {
           <Typography variant="body2" sx={{ mb: 2 }}>
             <strong>Pfad:</strong> {server?.pathToFolder}
           </Typography>
-          <CardActions sx={{ gap: 2 }}>
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<PowerSettingsNewIcon />}
-              disabled={status === 3 || actionLoading}
-              onClick={() => handleAction("start")}
-            >
-              Start
-            </Button>
-            <Button
-              variant="contained"
-              color="warning"
-              startIcon={<RestartAltIcon />}
-              disabled={status !== 3 || actionLoading}
-              onClick={() => handleAction("restart")}
-            >
-              Neustart
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              startIcon={<StopIcon />}
-              disabled={status !== 3 || actionLoading}
-              onClick={() => handleAction("stop")}
-            >
-              Stop
-            </Button>
-          </CardActions>
+          {/* Server Actions als Formulare */}
+          <form action={async () => { await serverAction("start"); }}>
+            <CardActions sx={{ gap: 2 }}>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={<PowerSettingsNewIcon />}
+                disabled={status === 3}
+                type="submit"
+              >
+                Start
+              </Button>
+            </CardActions>
+          </form>
+          <form action={async () => { await serverAction("restart"); }}>
+            <CardActions sx={{ gap: 2 }}>
+              <Button
+                variant="contained"
+                color="warning"
+                startIcon={<RestartAltIcon />}
+                disabled={status !== 3}
+                type="submit"
+              >
+                Neustart
+              </Button>
+            </CardActions>
+          </form>
+          <form action={async () => { await serverAction("stop"); }}>
+            <CardActions sx={{ gap: 2 }}>
+              <Button
+                variant="contained"
+                color="error"
+                startIcon={<StopIcon />}
+                disabled={status !== 3}
+                type="submit"
+              >
+                Stop
+              </Button>
+            </CardActions>
+          </form>
           <Divider sx={{ my: 2 }} />
           <Typography variant="subtitle2" gutterBottom>
             Console Output (readonly)
           </Typography>
           <Paper
-            ref={consoleRef}
             variant="outlined"
             sx={{
               bgcolor: "#111",
@@ -232,21 +180,6 @@ export default function ServersPage() {
           </Paper>
         </CardContent>
       </Card>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar(s => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={() => setSnackbar(s => ({ ...s, open: false }))}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 }
