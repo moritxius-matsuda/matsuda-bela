@@ -1,0 +1,55 @@
+// app/impressum/page.tsx
+
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+
+export default function ImpressumPage() {
+  return (
+    <Container maxWidth="md" sx={{ py: 6 }}>
+      <Typography variant="h4" gutterBottom>
+        Impressum
+      </Typography>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="body1" paragraph>
+          <strong>Anbieterkennzeichnung nach § 5 DDG und Verantwortlicher nach § 55 RstV:</strong><br />
+          Béla Media | cheap-domains.eu<br />
+          Pfalzeler Straße 1<br />
+          54293 Trier<br />
+          Deutschland
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Vertreten durch:</strong><br />
+          Moritz Béla Meier
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Kontakt:</strong><br />
+          E-Mail: behoerde@moritxius.de<br />
+          Telefon: +49 15902291916
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Verbraucherstreitbeilegung/Universalschlichtungsstelle:</strong><br />
+          Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Hinweis zur Online-Streitbeilegung gemäß Art. 14 Abs. 1 ODR-VO:</strong><br />
+          Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit, die Sie unter <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer">https://ec.europa.eu/consumers/odr/</a> finden.
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Urheberrechtlicher Hinweis:</strong><br />
+          Die Inhalte dieser Website sind urheberrechtlich geschützt. Jegliche Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung von Béla Media.
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Haftungsausschluss:</strong><br />
+          Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen.
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Änderungen:</strong><br />
+          Wir behalten uns vor, dieses Impressum jederzeit zu ändern. Es gilt stets die zum Zeitpunkt des Besuchs unserer Website aktuelle Fassung.<br />
+          <br />
+          <strong>Stand:</strong> 23.06.2024
+        </Typography>
+      </Box>
+    </Container>
+  );
+}
