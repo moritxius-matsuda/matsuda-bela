@@ -7,9 +7,14 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Link from "next/link";
 
+const JCWSMP_ALLOWED_ROLES = ["jcwsmp"];
+
 export default function HomePage() {
   const { isSignedIn, user } = useUser();
-  const role = user?.publicMetadata?.role as string | undefined;
+  // Hole das Rollen-Array aus publicMetadata
+  const userRoles = user?.publicMetadata?.roles as string[] | undefined;
+  // Prüfe, ob mindestens eine erlaubte Rolle dabei ist
+  const hasJCWSMPAccess = userRoles?.some(role => JCWSMP_ALLOWED_ROLES.includes(role));
 
   return (
     <Box sx={{ py: 6, maxWidth: 900, mx: "auto" }}>
@@ -33,8 +38,8 @@ export default function HomePage() {
           </CardContent>
         </Card>
 
-        {/* JCWSMP Kachel, nur für bestimmte Rollen */}
-        {isSignedIn && (role === "jcwsmp") && (
+        {/* JCWSMP Kachel, für mehrere Rollen */}
+        {isSignedIn && hasJCWSMPAccess && (
           <Card sx={{ flex: "1 1 250px", minWidth: 250 }}>
             <CardContent>
               <Typography variant="h6">JCWSMP – Konsole</Typography>
