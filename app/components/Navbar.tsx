@@ -57,10 +57,10 @@ export default function Navbar() {
 
   // Alle Navigationspunkte zentral, damit sie in Desktop & Drawer genutzt werden können
   const navLinks = [
-    { label: "Home", href: "/" },
-    ...(isSignedIn ? [{ label: "Admin", href: "/admin" }] : []),
-    { label: "Projektbeschreibung", href: "/projekt" },
-    { label: "Impressum", href: "/impressum" },
+    { label: "HOME", href: "/" },
+    ...(isSignedIn ? [{ label: "ADMIN", href: "/admin" }] : []),
+    { label: "PROJEKTBESCHREIBUNG", href: "/projekt" },
+    { label: "IMPRESSUM", href: "/impressum" },
   ];
 
   return (
@@ -71,7 +71,6 @@ export default function Navbar() {
           justifyContent: "space-between",
           flexWrap: "wrap",
           alignItems: "center",
-          gap: 2,
           minHeight: { xs: 56, sm: 64 },
           py: 0,
         }}
@@ -81,10 +80,11 @@ export default function Navbar() {
           <Box
             sx={{
               display: "flex",
-              gap: 2,
               flexWrap: "wrap",
-              flexDirection: { xs: "column", sm: "row" },
-              alignItems: { xs: "flex-start", sm: "center" },
+              columnGap: 3, // horizontaler Abstand
+              rowGap: 0.5,  // vertikaler Abstand (z.B. 0.5 = 4px)
+              flexDirection: "row",
+              alignItems: "center",
               minWidth: 0,
             }}
           >
@@ -94,6 +94,12 @@ export default function Navbar() {
                 color="inherit"
                 component={Link}
                 href={link.href}
+                disableElevation
+                sx={{
+                  my: 0, // kein vertical margin
+                  py: 1, // vertikales Padding für Klickfläche
+                  minWidth: 0,
+                }}
               >
                 {link.label}
               </Button>
@@ -105,8 +111,10 @@ export default function Navbar() {
               onClick={handleServersMenuOpen}
               aria-controls="servers-menu"
               aria-haspopup="true"
+              disableElevation
+              sx={{ my: 0, py: 1, minWidth: 0 }}
             >
-              Servers
+              SERVERS
             </Button>
             <Menu
               id="servers-menu"
@@ -121,7 +129,6 @@ export default function Navbar() {
               >
                 JCWSMP
               </MenuItem>
-              {/* Weitere Server hier */}
             </Menu>
 
             {/* Guides Dropdown */}
@@ -130,8 +137,10 @@ export default function Navbar() {
               onClick={handleGuidesMenuOpen}
               aria-controls="guides-menu"
               aria-haspopup="true"
+              disableElevation
+              sx={{ my: 0, py: 1, minWidth: 0 }}
             >
-              Guides
+              GUIDES
             </Button>
             <Menu
               id="guides-menu"
@@ -146,7 +155,6 @@ export default function Navbar() {
               >
                 Installation Proxmox auf Hetzner
               </MenuItem>
-              {/* Weitere Guides hier */}
             </Menu>
           </Box>
         )}
@@ -230,7 +238,7 @@ export default function Navbar() {
             {/* Servers Nested Dropdown */}
             <ListItem disablePadding>
               <ListItemButton onClick={() => setDrawerServersOpen(open => !open)}>
-                <ListItemText primary="Servers" />
+                <ListItemText primary="SERVERS" />
                 {drawerServersOpen ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
             </ListItem>
@@ -246,14 +254,13 @@ export default function Navbar() {
                     <ListItemText primary="JCWSMP" />
                   </ListItemButton>
                 </ListItem>
-                {/* Weitere Server */}
               </List>
             </Collapse>
 
             {/* Guides Nested Dropdown */}
             <ListItem disablePadding>
               <ListItemButton onClick={() => setDrawerGuidesOpen(open => !open)}>
-                <ListItemText primary="Guides" />
+                <ListItemText primary="GUIDES" />
                 {drawerGuidesOpen ? <ExpandLess /> : <ExpandMore />}
               </ListItemButton>
             </ListItem>
@@ -269,7 +276,6 @@ export default function Navbar() {
                     <ListItemText primary="Installation Proxmox auf Hetzner" />
                   </ListItemButton>
                 </ListItem>
-                {/* Weitere Guides */}
               </List>
             </Collapse>
           </List>
