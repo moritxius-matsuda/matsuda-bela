@@ -13,17 +13,26 @@ import MenuItem from "@mui/material/MenuItem";
 
 export default function Navbar() {
   const { user, isSignedIn, isLoaded } = useUser();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  // State und Handler für Servers-Dropdown
+  const [serversAnchorEl, setServersAnchorEl] = React.useState<null | HTMLElement>(null);
+  const handleServersMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setServersAnchorEl(event.currentTarget);
+  };
+  const handleServersMenuClose = () => {
+    setServersAnchorEl(null);
+  };
+
+  // State und Handler für Guides-Dropdown
+  const [guidesAnchorEl, setGuidesAnchorEl] = React.useState<null | HTMLElement>(null);
+  const handleGuidesMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setGuidesAnchorEl(event.currentTarget);
+  };
+  const handleGuidesMenuClose = () => {
+    setGuidesAnchorEl(null);
+  };
 
   if (!isLoaded) return null;
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
 
   return (
     <AppBar position="static" color="primary" enableColorOnDark>
@@ -41,7 +50,7 @@ export default function Navbar() {
           {/* Servers Dropdown */}
           <Button
             color="inherit"
-            onClick={handleMenuOpen}
+            onClick={handleServersMenuOpen}
             aria-controls="servers-menu"
             aria-haspopup="true"
           >
@@ -49,27 +58,50 @@ export default function Navbar() {
           </Button>
           <Menu
             id="servers-menu"
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            MenuListProps={{
-              "aria-labelledby": "servers-button",
-            }}
+            anchorEl={serversAnchorEl}
+            open={Boolean(serversAnchorEl)}
+            onClose={handleServersMenuClose}
           >
             <MenuItem
               component={Link}
               href="/console?name=JCWSMP&server=86c006fd-bdbb-4227-86c8-f9a8ceb73216"
-              onClick={handleMenuClose}
+              onClick={handleServersMenuClose}
             >
               JCWSMP
             </MenuItem>
-            {/* Hier kannst du weitere Server ergänzen */}
+            {/* Weitere Server hier */}
           </Menu>
+
+          {/* Guides Dropdown */}
+          <Button
+            color="inherit"
+            onClick={handleGuidesMenuOpen}
+            aria-controls="guides-menu"
+            aria-haspopup="true"
+          >
+            Guides
+          </Button>
+          <Menu
+            id="guides-menu"
+            anchorEl={guidesAnchorEl}
+            open={Boolean(guidesAnchorEl)}
+            onClose={handleGuidesMenuClose}
+          >
+            <MenuItem
+              component={Link}
+              href="/guides/proxmox-hetzner"
+              onClick={handleGuidesMenuClose}
+            >
+              Installation Proxmox auf Hetzner
+            </MenuItem>
+            {/* Weitere Guides hier */}
+          </Menu>
+
+          <Button color="inherit" component={Link} href="/projekt">
+            Projektbeschreibung
+          </Button>
           <Button component={Link} href="/impressum" color="inherit">
             Impressum
-          </Button>
-          <Button color="inherit" component={Link} href="/spam-policy">
-            SPAM-Policy
           </Button>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
