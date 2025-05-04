@@ -1,4 +1,5 @@
 "use client";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
   Box,
@@ -13,12 +14,14 @@ import {
 
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
-const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
-const SERVER_NAME = "JCWSMP";
 
 console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY + "e2aa")
 
 export default function ConsolePage() {
+  const searchParams = useSearchParams();
+  const SERVER_ID = searchParams.get("server") || "";
+  const SERVER_NAME = searchParams.get("name") || "";
+
   const [consoleLines, setConsoleLines] = useState<string[]>([]);
   const [command, setCommand] = useState("");
   const [sending, setSending] = useState(false);
@@ -26,7 +29,7 @@ export default function ConsolePage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
-  // Automatisch nach unten scrollen, wenn neue Ausgaben kommen
+  // Automatisch nach unten scrollen
   useEffect(() => {
     if (consoleEndRef.current) {
       consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -35,6 +38,7 @@ export default function ConsolePage() {
 
   // Konsole laden & poll
   useEffect(() => {
+    if (!SERVER_ID) return;
     const fetchConsole = () => {
       fetch(
         `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=true`,
@@ -50,10 +54,11 @@ export default function ConsolePage() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [SERVER_ID]);
 
   // Server-Aktion (Start/Stop/Kill/Restart)
   const handleAction = async (action: 1 | 2 | 3 | 4) => {
+    if (!SERVER_ID) return;
     setActionLoading(true);
     await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
       method: "POST",
@@ -68,7 +73,7 @@ export default function ConsolePage() {
 
   // Kommando senden
   const sendCommand = async () => {
-    if (!command.trim()) return;
+    if (!command.trim() || !SERVER_ID) return;
     setSending(true);
     await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
       method: "POST",
@@ -100,7 +105,7 @@ export default function ConsolePage() {
               <Button
                 variant="contained"
                 color="success"
-                disabled={actionLoading}
+                disabled={actionLoading || !SERVER_ID}
                 onClick={() => handleAction(2)}
               >
                 Start
@@ -108,7 +113,7 @@ export default function ConsolePage() {
               <Button
                 variant="contained"
                 color="error"
-                disabled={actionLoading}
+                disabled={actionLoading || !SERVER_ID}
                 onClick={() => handleAction(1)}
               >
                 Stop
@@ -116,7 +121,7 @@ export default function ConsolePage() {
               <Button
                 variant="contained"
                 color="secondary"
-                disabled={actionLoading}
+                disabled={actionLoading || !SERVER_ID}
                 onClick={() => handleAction(3)}
               >
                 Kill
@@ -124,7 +129,7 @@ export default function ConsolePage() {
               <Button
                 variant="contained"
                 color="warning"
-                disabled={actionLoading}
+                disabled={actionLoading || !SERVER_ID}
                 onClick={() => handleAction(4)}
               >
                 Restart
@@ -167,13 +172,13 @@ export default function ConsolePage() {
             if (e.key === "Enter") sendCommand();
           }}
           fullWidth
-          disabled={sending}
+          disabled={sending || !SERVER_ID}
           autoComplete="off"
         />
         <Button
           variant="contained"
           onClick={sendCommand}
-          disabled={!command.trim() || sending}
+          disabled={!command.trim() || sending || !SERVER_ID}
         >
           Absenden
         </Button>
