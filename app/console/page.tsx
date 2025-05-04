@@ -42,12 +42,15 @@ export default function ConsolePage() {
     };
   }, []);
 
-  // Server-Aktion (Start/Stop/Restart)
+  // Server-Aktion (Start/Stop/Kill/Restart)
   const handleAction = async (action: 1 | 2 | 3 | 4) => {
     setActionLoading(true);
     await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: API_KEY },
+      headers: {
+        "Content-Type": "application/json",
+        apikey: API_KEY,
+      },
       body: JSON.stringify({ action }),
     });
     setActionLoading(false);
@@ -59,7 +62,10 @@ export default function ConsolePage() {
     setSending(true);
     await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: API_KEY },
+      headers: {
+        "Content-Type": "application/json",
+        apikey: API_KEY,
+      },
       body: JSON.stringify({ command }),
     });
     setCommand("");
@@ -96,6 +102,14 @@ export default function ConsolePage() {
                 onClick={() => handleAction(1)}
               >
                 Stop
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                disabled={actionLoading}
+                onClick={() => handleAction(3)}
+              >
+                Kill
               </Button>
               <Button
                 variant="contained"
