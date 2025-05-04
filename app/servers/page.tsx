@@ -37,7 +37,7 @@ async function getServerConsole() {
     const res = await fetch(
       `${API_URL}/servers/${SERVER_ID}/console?amountOfLines=-1`,
       {
-        method: "POST",
+        method: "GET",
         headers: {
           "apiKey": API_KEY,
           "Content-Type": "application/json",
