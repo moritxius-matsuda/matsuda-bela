@@ -42,7 +42,7 @@ export default function HomePage() {
         Die Plattform für Funkamateure – fair, transparent, innovativ.
       </Typography>
       <Typography variant="body1" sx={{ fontStyle: "italic", mt: 3 }}>
-        Der voraussichtliche Start ist im Herbst 2027.
+        Der voraussichtliche Start ist im Herbst 2027. <br></br>
       </Typography>
       <Stack spacing={4} sx={{ mb: 6 }}>
         <Card variant="outlined" sx={{ bgcolor: "background.paper" }}>
