@@ -28,7 +28,7 @@ export default function ConsolePage() {
   useEffect(() => {
     setLoading(true);
     fetch(`${API_URL}/servers?filter=2`, {
-      headers: { apikey: API_KEY }
+      headers: { apiKey: API_KEY }
     })
       .then(res => res.json())
       .then(data => {
@@ -43,7 +43,7 @@ export default function ConsolePage() {
     if (!selected) return;
     const fetchConsole = () => {
       fetch(`${API_URL}/servers/${selected}/console?AmountOfLines=30&Reversed=true`, {
-        headers: { apikey: API_KEY }
+        headers: { apiKey: API_KEY }
       })
         .then(res => res.json())
         .then(data => setConsoleLines(data || []));
@@ -58,7 +58,7 @@ export default function ConsolePage() {
     setActionLoading(true);
     await fetch(`${API_URL}/servers/${selected}/action`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: API_KEY },
+      headers: { "Content-Type": "application/json", apiKey: API_KEY },
       body: JSON.stringify({ action }),
     });
     setActionLoading(false);
@@ -70,7 +70,7 @@ export default function ConsolePage() {
     setSending(true);
     await fetch(`${API_URL}/servers/${selected}/command`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", apikey: API_KEY },
+      headers: { "Content-Type": "application/json", apiKey: API_KEY },
       body: JSON.stringify({ command }),
     });
     setCommand("");
