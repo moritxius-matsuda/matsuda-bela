@@ -36,7 +36,7 @@ export default function ConsolePage() {
   // Serverliste laden und filtern
   useEffect(() => {
     setLoading(true);
-    fetch(`${API_URL}/servers?filter=1`, {
+    fetch(`${API_URL}/servers`, {
       headers: { apikey: API_KEY },
     })
       .then((res) => res.json())
