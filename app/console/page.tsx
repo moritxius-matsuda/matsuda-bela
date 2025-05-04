@@ -5,7 +5,7 @@ import ConsoleClient from "./ConsoleClient";
 export default async function ConsolePage() {
   const user = await currentUser();
 
-  if (!user || user.publicMetadata.role !== "admin", "jcwsmp", "console") {
+  if (!user || user.publicMetadata.role !== "admin") {
     redirect("/unauthorized");
   }
 

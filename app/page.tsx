@@ -34,7 +34,7 @@ export default function HomePage() {
         </Card>
 
         {/* JCWSMP Kachel, nur für bestimmte Rollen */}
-        {isSignedIn && (role === "jcwsmp" || role === "admin") && (
+        {isSignedIn && (role === "admin") && (
           <Card sx={{ flex: "1 1 250px", minWidth: 250 }}>
             <CardContent>
               <Typography variant="h6">JCWSMP – Konsole</Typography>
