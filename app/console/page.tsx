@@ -23,15 +23,16 @@ export default function ConsolePage() {
   const [command, setCommand] = useState("");
   const [sending, setSending] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const [isConnected, setIsConnected] = useState(true); // ob Polling läuft
+  const [isConnected, setIsConnected] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const consoleEndRef = useRef<HTMLDivElement>(null);
+  const consoleContainerRef = useRef<HTMLDivElement>(null);
 
-  // Automatisch nach unten scrollen, wenn neue Ausgaben kommen
+  // Nur der Konsolenbereich scrollt automatisch nach unten
   useEffect(() => {
-    if (consoleEndRef.current) {
-      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
+    const el = consoleContainerRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
     }
   }, [consoleLines]);
 
@@ -156,6 +157,7 @@ export default function ConsolePage() {
         </Card>
 
         <Paper
+          ref={consoleContainerRef}
           sx={{
             minHeight: 350,
             maxHeight: 400,
@@ -170,12 +172,7 @@ export default function ConsolePage() {
           {consoleLines.length === 0 ? (
             <Typography color="grey.500">Keine Ausgaben...</Typography>
           ) : (
-            <>
-              {consoleLines.map((line, i) => (
-                <div key={i}>{line}</div>
-              ))}
-              <div ref={consoleEndRef} />
-            </>
+            consoleLines.map((line, i) => <div key={i}>{line}</div>)
           )}
         </Paper>
 
@@ -212,3 +209,4 @@ export default function ConsolePage() {
     </Box>
   );
 }
+
