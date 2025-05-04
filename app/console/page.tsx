@@ -16,6 +16,8 @@ const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
 const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
 const SERVER_NAME = "JCWSMP";
 
+console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY)
+
 export default function ConsolePage() {
   const [consoleLines, setConsoleLines] = useState<string[]>([]);
   const [command, setCommand] = useState("");
