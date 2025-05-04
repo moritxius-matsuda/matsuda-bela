@@ -7,63 +7,27 @@ import {
   CardContent,
   Button,
   TextField,
-  MenuItem,
   Stack,
   Paper,
-  CircularProgress,
 } from "@mui/material";
 
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
-
-type Server = {
-  guid: string;
-  name: string;
-  status: number;
-  description: string;
-};
+const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
+const SERVER_NAME = "JCWSMP";
 
 export default function ConsolePage() {
-  const [servers, setServers] = useState<Server[]>([]);
-  const [selected, setSelected] = useState<string>("");
   const [consoleLines, setConsoleLines] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
   const [command, setCommand] = useState("");
   const [sending, setSending] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Serverliste laden und filtern
-  useEffect(() => {
-    setLoading(true);
-    fetch(`${API_URL}/servers`, {
-      headers: { apikey: API_KEY },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        // Nur Server mit GUID und Namen anzeigen
-        const validServers = Array.isArray(data)
-          ? data.filter(
-              (s) =>
-                s &&
-                typeof s.guid === "string" &&
-                s.guid.length > 0 &&
-                typeof s.name === "string" &&
-                s.name.trim().length > 0
-            )
-          : [];
-        setServers(validServers);
-        if (validServers.length > 0) setSelected(validServers[0].guid);
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
   // Konsole laden & poll
   useEffect(() => {
-    if (!selected) return;
     const fetchConsole = () => {
       fetch(
-        `${API_URL}/servers/${selected}/console?AmountOfLines=30&Reversed=true`,
+        `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=true`,
         {
           headers: { apikey: API_KEY },
         }
@@ -76,12 +40,12 @@ export default function ConsolePage() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [selected]);
+  }, []);
 
   // Server-Aktion (Start/Stop/Restart)
   const handleAction = async (action: 1 | 2 | 3 | 4) => {
     setActionLoading(true);
-    await fetch(`${API_URL}/servers/${selected}/action`, {
+    await fetch(`${API_URL}/servers/${SERVER_ID}/action`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: API_KEY },
       body: JSON.stringify({ action }),
@@ -93,7 +57,7 @@ export default function ConsolePage() {
   const sendCommand = async () => {
     if (!command.trim()) return;
     setSending(true);
-    await fetch(`${API_URL}/servers/${selected}/command`, {
+    await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: API_KEY },
       body: JSON.stringify({ command }),
@@ -109,58 +73,39 @@ export default function ConsolePage() {
       </Typography>
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            alignItems="center"
-          >
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2} alignItems="center">
             <TextField
-              select
-              label="Server auswählen"
-              value={selected}
-              onChange={(e) => setSelected(e.target.value)}
+              label="Server"
+              value={SERVER_NAME}
+              InputProps={{ readOnly: true }}
               sx={{ minWidth: 220 }}
-              disabled={loading || servers.length === 0}
-            >
-              {servers.map((s) => (
-                <MenuItem value={s.guid} key={s.guid}>
-                  {s.name}
-                </MenuItem>
-              ))}
-              {servers.length === 0 && (
-                <MenuItem value="" disabled>
-                  Keine Server gefunden
-                </MenuItem>
-              )}
-            </TextField>
-            {selected && (
-              <Stack direction="row" spacing={1}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  disabled={actionLoading}
-                  onClick={() => handleAction(2)}
-                >
-                  Start
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  disabled={actionLoading}
-                  onClick={() => handleAction(1)}
-                >
-                  Stop
-                </Button>
-                <Button
-                  variant="contained"
-                  color="warning"
-                  disabled={actionLoading}
-                  onClick={() => handleAction(4)}
-                >
-                  Restart
-                </Button>
-              </Stack>
-            )}
+            />
+            <Stack direction="row" spacing={1}>
+              <Button
+                variant="contained"
+                color="success"
+                disabled={actionLoading}
+                onClick={() => handleAction(2)}
+              >
+                Start
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                disabled={actionLoading}
+                onClick={() => handleAction(1)}
+              >
+                Stop
+              </Button>
+              <Button
+                variant="contained"
+                color="warning"
+                disabled={actionLoading}
+                onClick={() => handleAction(4)}
+              >
+                Restart
+              </Button>
+            </Stack>
           </Stack>
         </CardContent>
       </Card>
@@ -193,7 +138,7 @@ export default function ConsolePage() {
             if (e.key === "Enter") sendCommand();
           }}
           fullWidth
-          disabled={!selected || sending}
+          disabled={sending}
           autoComplete="off"
         />
         <Button
