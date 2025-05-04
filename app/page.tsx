@@ -1,49 +1,60 @@
-// app/page.tsx
-"use client";
-import { useUser } from "@clerk/nextjs";
-import Grid from "@mui/material/Grid";
-import { Container, Typography, Card, CardContent, Button } from "@mui/material";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import Link from "next/link";
 
-export default function HomePage() {
-  const { user, isLoaded, isSignedIn } = useUser();
+type HomePageProps = {
+  isSignedIn: boolean;
+  role?: string;
+};
 
-  // Rolle aus Clerk-Metadaten holen (ggf. anpassen!)
-  const role = user?.publicMetadata?.role;
-
+export default function HomePage({ isSignedIn, role }: HomePageProps) {
   return (
-    <Container maxWidth="md" sx={{ py: 6 }}>
+    <Box sx={{ py: 6, maxWidth: 900, mx: "auto" }}>
       <Typography variant="h4" gutterBottom>
         Willkommen auf der Hauptseite
       </Typography>
-      <Grid container spacing={3}>
-        {/* Andere Kacheln ... */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 3,
+          mt: 3,
+          justifyContent: { xs: "center", sm: "flex-start" },
+        }}
+      >
+        {/* Beispiel-Kachel */}
+        <Card sx={{ flex: "1 1 250px", minWidth: 250 }}>
+          <CardContent>
+            <Typography variant="h6">Andere Kachel</Typography>
+            <Typography variant="body2">Beliebiger Text</Typography>
+          </CardContent>
+        </Card>
 
-        {/* JCWSMP Konsole Kachel, nur für Rollen jcwsmp oder admin */}
+        {/* JCWSMP Kachel, nur für bestimmte Rollen */}
         {isSignedIn && (role === "jcwsmp" || role === "admin") && (
-          <Grid item xs={12} sm={6} md={4}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  JCWSMP - Konsole
-                </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Minecraft-Server Konsole & Steuerung
-                </Typography>
-                <Button
-                  component={Link}
-                  href="https://console.moritxius.nl/"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                >
-                  Öffnen
-                </Button>
-              </CardContent>
-            </Card>
-          </Grid>
+          <Card sx={{ flex: "1 1 250px", minWidth: 250 }}>
+            <CardContent>
+              <Typography variant="h6">JCWSMP – Konsole</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Minecraft-Server Konsole & Steuerung
+              </Typography>
+              <Button
+                component={Link}
+                href="/servers"
+                variant="contained"
+                color="primary"
+                fullWidth
+                sx={{ mt: 2 }}
+              >
+                Öffnen
+              </Button>
+            </CardContent>
+          </Card>
         )}
-      </Grid>
-    </Container>
+      </Box>
+    </Box>
   );
 }
