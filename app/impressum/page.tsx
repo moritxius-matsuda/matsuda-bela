@@ -13,7 +13,7 @@ export default function ImpressumPage() {
       <Box sx={{ mb: 2 }}>
         <Typography variant="body1" paragraph>
           <strong>Anbieterkennzeichnung nach § 5 DDG und Verantwortlicher nach § 55 RstV:</strong><br />
-          Béla Media | cheap-domains.eu<br />
+          Matsuda Béla<br />
           Pfalzeler Straße 1<br />
           54293 Trier<br />
           Deutschland
