@@ -62,7 +62,7 @@ export default function ConsolePage() {
   const sendCommand = async () => {
     if (!command.trim()) return;
     setSending(true);
-    await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
+    await fetch(`${API_URL}/servers/${SERVER_ID}/execute/command`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
