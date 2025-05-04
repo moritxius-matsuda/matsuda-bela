@@ -10,11 +10,24 @@ import Link from "next/link";
 import Box from "@mui/material/Box";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import Drawer from "@mui/material/Drawer";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemButton from "@mui/material/ListItemButton";
+import Collapse from "@mui/material/Collapse";
+import Divider from "@mui/material/Divider";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 
 export default function Navbar() {
   const { user, isSignedIn, isLoaded } = useUser();
 
-  // State und Handler für Servers-Dropdown
+  // Dropdowns für Desktop
   const [serversAnchorEl, setServersAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleServersMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setServersAnchorEl(event.currentTarget);
@@ -23,7 +36,6 @@ export default function Navbar() {
     setServersAnchorEl(null);
   };
 
-  // State und Handler für Guides-Dropdown
   const [guidesAnchorEl, setGuidesAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleGuidesMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setGuidesAnchorEl(event.currentTarget);
@@ -32,7 +44,24 @@ export default function Navbar() {
     setGuidesAnchorEl(null);
   };
 
+  // Hamburger/Drawer für Mobilgeräte
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
+
+  // Für Nested Menüs im Drawer
+  const [drawerServersOpen, setDrawerServersOpen] = React.useState(false);
+  const [drawerGuidesOpen, setDrawerGuidesOpen] = React.useState(false);
+
   if (!isLoaded) return null;
+
+  // Alle Navigationspunkte zentral, damit sie in Desktop & Drawer genutzt werden können
+  const navLinks = [
+    { label: "Home", href: "/" },
+    ...(isSignedIn ? [{ label: "Admin", href: "/admin" }] : []),
+    { label: "Projektbeschreibung", href: "/projekt" },
+    { label: "Impressum", href: "/impressum" },
+  ];
 
   return (
     <AppBar position="static" color="primary" enableColorOnDark>
@@ -41,87 +70,99 @@ export default function Navbar() {
           display: "flex",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          alignItems: "flex-start",
+          alignItems: "center",
           gap: 2,
+          minHeight: { xs: 56, sm: 64 },
+          py: 0,
         }}
       >
-        {/* Link-Bereich */}
-        <Box
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexWrap: "wrap",
-            flexDirection: { xs: "column", sm: "row" },
-            alignItems: { xs: "flex-start", sm: "center" },
-            minWidth: 0,
-          }}
-        >
-          <Button color="inherit" component={Link} href="/">
-            Home
-          </Button>
-          {isSignedIn && (
-            <Button color="inherit" component={Link} href="/admin">
-              Admin
+        {/* Links (Desktop) */}
+        {!isMobile && (
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexWrap: "wrap",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "flex-start", sm: "center" },
+              minWidth: 0,
+            }}
+          >
+            {navLinks.map((link) => (
+              <Button
+                key={link.href}
+                color="inherit"
+                component={Link}
+                href={link.href}
+              >
+                {link.label}
+              </Button>
+            ))}
+
+            {/* Servers Dropdown */}
+            <Button
+              color="inherit"
+              onClick={handleServersMenuOpen}
+              aria-controls="servers-menu"
+              aria-haspopup="true"
+            >
+              Servers
             </Button>
-          )}
-
-          {/* Servers Dropdown */}
-          <Button
-            color="inherit"
-            onClick={handleServersMenuOpen}
-            aria-controls="servers-menu"
-            aria-haspopup="true"
-          >
-            Servers
-          </Button>
-          <Menu
-            id="servers-menu"
-            anchorEl={serversAnchorEl}
-            open={Boolean(serversAnchorEl)}
-            onClose={handleServersMenuClose}
-          >
-            <MenuItem
-              component={Link}
-              href="/console?name=JCWSMP&server=86c006fd-bdbb-4227-86c8-f9a8ceb73216"
-              onClick={handleServersMenuClose}
+            <Menu
+              id="servers-menu"
+              anchorEl={serversAnchorEl}
+              open={Boolean(serversAnchorEl)}
+              onClose={handleServersMenuClose}
             >
-              JCWSMP
-            </MenuItem>
-            {/* Weitere Server hier */}
-          </Menu>
+              <MenuItem
+                component={Link}
+                href="/console?name=JCWSMP&server=86c006fd-bdbb-4227-86c8-f9a8ceb73216"
+                onClick={handleServersMenuClose}
+              >
+                JCWSMP
+              </MenuItem>
+              {/* Weitere Server hier */}
+            </Menu>
 
-          {/* Guides Dropdown */}
-          <Button
-            color="inherit"
-            onClick={handleGuidesMenuOpen}
-            aria-controls="guides-menu"
-            aria-haspopup="true"
-          >
-            Guides
-          </Button>
-          <Menu
-            id="guides-menu"
-            anchorEl={guidesAnchorEl}
-            open={Boolean(guidesAnchorEl)}
-            onClose={handleGuidesMenuClose}
-          >
-            <MenuItem
-              component={Link}
-              href="/guides/proxmox-hetzner"
-              onClick={handleGuidesMenuClose}
+            {/* Guides Dropdown */}
+            <Button
+              color="inherit"
+              onClick={handleGuidesMenuOpen}
+              aria-controls="guides-menu"
+              aria-haspopup="true"
             >
-              Installation Proxmox auf Hetzner
-            </MenuItem>
-            {/* Weitere Guides hier */}
-          </Menu>
+              Guides
+            </Button>
+            <Menu
+              id="guides-menu"
+              anchorEl={guidesAnchorEl}
+              open={Boolean(guidesAnchorEl)}
+              onClose={handleGuidesMenuClose}
+            >
+              <MenuItem
+                component={Link}
+                href="/guides/proxmox-hetzner"
+                onClick={handleGuidesMenuClose}
+              >
+                Installation Proxmox auf Hetzner
+              </MenuItem>
+              {/* Weitere Guides hier */}
+            </Menu>
+          </Box>
+        )}
 
-          <Button color="inherit" component={Link} href="/projekt">
-            Projektbeschreibung
-          </Button>
-          <Button component={Link} href="/impressum" color="inherit">
-            Impressum
-          </Button>
-        </Box>
+        {/* Hamburger Button (Mobile) */}
+        {isMobile && (
+          <IconButton
+            color="inherit"
+            edge="start"
+            onClick={() => setDrawerOpen(true)}
+            aria-label="open drawer"
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
 
         {/* Rechtsbereich */}
         <Box
@@ -164,6 +205,120 @@ export default function Navbar() {
           )}
         </Box>
       </Toolbar>
+
+      {/* Drawer für Mobilgeräte */}
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        ModalProps={{ keepMounted: true }}
+      >
+        <Box sx={{ width: 260, pt: 2 }} role="presentation">
+          <List>
+            {navLinks.map((link) => (
+              <ListItem disablePadding key={link.href}>
+                <ListItemButton
+                  component={Link}
+                  href={link.href}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  <ListItemText primary={link.label} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+
+            {/* Servers Nested Dropdown */}
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => setDrawerServersOpen(open => !open)}>
+                <ListItemText primary="Servers" />
+                {drawerServersOpen ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+            </ListItem>
+            <Collapse in={drawerServersOpen} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    href="/console?name=JCWSMP&server=86c006fd-bdbb-4227-86c8-f9a8ceb73216"
+                    sx={{ pl: 4 }}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <ListItemText primary="JCWSMP" />
+                  </ListItemButton>
+                </ListItem>
+                {/* Weitere Server */}
+              </List>
+            </Collapse>
+
+            {/* Guides Nested Dropdown */}
+            <ListItem disablePadding>
+              <ListItemButton onClick={() => setDrawerGuidesOpen(open => !open)}>
+                <ListItemText primary="Guides" />
+                {drawerGuidesOpen ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+            </ListItem>
+            <Collapse in={drawerGuidesOpen} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    href="/guides/proxmox-hetzner"
+                    sx={{ pl: 4 }}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <ListItemText primary="Installation Proxmox auf Hetzner" />
+                  </ListItemButton>
+                </ListItem>
+                {/* Weitere Guides */}
+              </List>
+            </Collapse>
+          </List>
+          <Divider sx={{ my: 1 }} />
+          <Box sx={{ px: 2, pb: 2 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "rgba(0,0,0,0.7)",
+                userSelect: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Made with <span style={{ color: "red" }}>❤</span> by Moritz Béla Meier
+            </Typography>
+            {isSignedIn ? (
+              <>
+                <Typography variant="body1" sx={{ whiteSpace: "nowrap" }}>
+                  {user?.fullName}
+                </Typography>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            ) : (
+              <>
+                <Button
+                  color="primary"
+                  component={Link}
+                  href="/sign-in"
+                  fullWidth
+                  onClick={() => setDrawerOpen(false)}
+                  sx={{ mt: 1 }}
+                >
+                  Sign In
+                </Button>
+                <Button
+                  color="primary"
+                  component={Link}
+                  href="/sign-up"
+                  fullWidth
+                  onClick={() => setDrawerOpen(false)}
+                  sx={{ mt: 1 }}
+                >
+                  Sign Up
+                </Button>
+              </>
+            )}
+          </Box>
+        </Box>
+      </Drawer>
     </AppBar>
   );
 }
