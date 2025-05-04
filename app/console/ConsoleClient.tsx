@@ -1,47 +1,24 @@
 "use client";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import {
-  Box, Typography, Card, CardContent, Button, TextField, Stack, Paper, Alert, CircularProgress
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  TextField,
+  Stack,
+  Paper,
 } from "@mui/material";
-import { useUser } from "@clerk/nextjs";
-
 
 const API_URL = "https://console.moritxius.nl/api/v2";
 const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
-const ALLOWED_ROLES = ["admin", "console", "jcwsmp"];
+const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
+const SERVER_NAME = "JCWSMP";
 
-export default function ConsoleClient() {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const searchParams = useSearchParams();
-  const SERVER_ID = searchParams.get("server") || "";
-  const SERVER_NAME = searchParams.get("name") || "";
+console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY + "e2aa")
 
-  const role = user?.publicMetadata?.role as string | undefined;
-
-  // Zugriff prüfen
-  if (!isLoaded) {
-    return (
-      <Box sx={{ p: 4, textAlign: "center" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-  if (!isSignedIn) {
-    return (
-      <Alert severity="warning" sx={{ mt: 4 }}>
-        Du musst angemeldet sein, um auf die Konsole zuzugreifen.
-      </Alert>
-    );
-  }
-  if (!role || !ALLOWED_ROLES.includes(role)) {
-    return (
-      <Alert severity="error" sx={{ mt: 4 }}>
-        Kein Zugriff – diese Seite ist nur für Admins, Console und JCWSMP!
-      </Alert>
-    );
-  }
-
+export default function ConsolePage() {
   const [consoleLines, setConsoleLines] = useState<string[]>([]);
   const [command, setCommand] = useState("");
   const [sending, setSending] = useState(false);
@@ -49,18 +26,21 @@ export default function ConsoleClient() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
+  // Automatisch nach unten scrollen, wenn neue Ausgaben kommen
   useEffect(() => {
     if (consoleEndRef.current) {
       consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [consoleLines]);
 
+  // Konsole laden & poll
   useEffect(() => {
-    if (!SERVER_ID) return;
     const fetchConsole = () => {
       fetch(
         `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=true`,
-        { headers: { apikey: API_KEY } }
+        {
+          headers: { apikey: API_KEY },
+        }
       )
         .then((res) => res.json())
         .then((data) => setConsoleLines(Array.isArray(data) ? data : []));
@@ -70,10 +50,10 @@ export default function ConsoleClient() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [SERVER_ID]);
+  }, []);
 
+  // Server-Aktion (Start/Stop/Kill/Restart)
   const handleAction = async (action: 1 | 2 | 3 | 4) => {
-    if (!SERVER_ID) return;
     setActionLoading(true);
     await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
       method: "POST",
@@ -86,8 +66,9 @@ export default function ConsoleClient() {
     setActionLoading(false);
   };
 
+  // Kommando senden
   const sendCommand = async () => {
-    if (!command.trim() || !SERVER_ID) return;
+    if (!command.trim()) return;
     setSending(true);
     await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
       method: "POST",
@@ -119,7 +100,7 @@ export default function ConsoleClient() {
               <Button
                 variant="contained"
                 color="success"
-                disabled={actionLoading || !SERVER_ID}
+                disabled={actionLoading}
                 onClick={() => handleAction(2)}
               >
                 Start
@@ -127,7 +108,7 @@ export default function ConsoleClient() {
               <Button
                 variant="contained"
                 color="error"
-                disabled={actionLoading || !SERVER_ID}
+                disabled={actionLoading}
                 onClick={() => handleAction(1)}
               >
                 Stop
@@ -135,7 +116,7 @@ export default function ConsoleClient() {
               <Button
                 variant="contained"
                 color="secondary"
-                disabled={actionLoading || !SERVER_ID}
+                disabled={actionLoading}
                 onClick={() => handleAction(3)}
               >
                 Kill
@@ -143,7 +124,7 @@ export default function ConsoleClient() {
               <Button
                 variant="contained"
                 color="warning"
-                disabled={actionLoading || !SERVER_ID}
+                disabled={actionLoading}
                 onClick={() => handleAction(4)}
               >
                 Restart
@@ -186,13 +167,13 @@ export default function ConsoleClient() {
             if (e.key === "Enter") sendCommand();
           }}
           fullWidth
-          disabled={sending || !SERVER_ID}
+          disabled={sending}
           autoComplete="off"
         />
         <Button
           variant="contained"
           onClick={sendCommand}
-          disabled={!command.trim() || sending || !SERVER_ID}
+          disabled={!command.trim() || sending}
         >
           Absenden
         </Button>
