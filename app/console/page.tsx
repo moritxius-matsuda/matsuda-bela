@@ -16,7 +16,7 @@ const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
 const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
 const SERVER_NAME = "JCWSMP";
 
-console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY)
+console.log(process.env.NEXT_PUBLIC_MCSS_API_KEY + "e2aa")
 
 export default function ConsolePage() {
   const [consoleLines, setConsoleLines] = useState<string[]>([]);
@@ -24,12 +24,20 @@ export default function ConsolePage() {
   const [sending, setSending] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const consoleEndRef = useRef<HTMLDivElement>(null);
+
+  // Automatisch nach unten scrollen, wenn neue Ausgaben kommen
+  useEffect(() => {
+    if (consoleEndRef.current) {
+      consoleEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [consoleLines]);
 
   // Konsole laden & poll
   useEffect(() => {
     const fetchConsole = () => {
       fetch(
-        `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=false`,
+        `${API_URL}/servers/${SERVER_ID}/console?AmountOfLines=30&Reversed=true`,
         {
           headers: { apikey: API_KEY },
         }
@@ -62,7 +70,7 @@ export default function ConsolePage() {
   const sendCommand = async () => {
     if (!command.trim()) return;
     setSending(true);
-    await fetch(`${API_URL}/servers/${SERVER_ID}/execute/command`, {
+    await fetch(`${API_URL}/servers/${SERVER_ID}/command`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +149,12 @@ export default function ConsolePage() {
         {consoleLines.length === 0 ? (
           <Typography color="grey.500">Keine Ausgaben...</Typography>
         ) : (
-          consoleLines.map((line, i) => <div key={i}>{line}</div>)
+          <>
+            {consoleLines.map((line, i) => (
+              <div key={i}>{line}</div>
+            ))}
+            <div ref={consoleEndRef} />
+          </>
         )}
       </Paper>
 
