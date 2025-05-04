@@ -10,7 +10,7 @@ import StopIcon from "@mui/icons-material/Stop";
 import TerminalIcon from "@mui/icons-material/Terminal";
 
 const API_URL = "https://console.moritxius.nl/api/v2";
-const API_KEY = process.env.MCSS_API_KEY!;
+const API_KEY = process.env.NEXT_PUBLIC_MCSS_API_KEY!;
 const SERVER_ID = "86c006fd-bdbb-4227-86c8-f9a8ceb73216";
 
 const statusMap: Record<number, { label: string; color: "success" | "error" | "warning" | "default" }> = {
