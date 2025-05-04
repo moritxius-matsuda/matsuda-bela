@@ -26,7 +26,7 @@ export default function Navbar() {
               Admin
             </Button>
           )}
-          <Button color="inherit" component={Link} href="/project-description">
+          <Button color="inherit" component={Link} href="/projekt">
             Projektbeschreibung
           </Button>
           <Button component={Link} href="/impressum" color="inherit">
