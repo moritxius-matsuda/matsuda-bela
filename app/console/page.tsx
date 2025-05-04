@@ -45,7 +45,7 @@ export default function ConsolePage() {
   // Server-Aktion (Start/Stop/Restart)
   const handleAction = async (action: 1 | 2 | 3 | 4) => {
     setActionLoading(true);
-    await fetch(`${API_URL}/servers/${SERVER_ID}/action`, {
+    await fetch(`${API_URL}/servers/${SERVER_ID}/execute/action`, {
       method: "POST",
       headers: { "Content-Type": "application/json", apikey: API_KEY },
       body: JSON.stringify({ action }),
