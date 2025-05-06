@@ -308,6 +308,16 @@ export default function Navbar() {
             >
               Made with <span style={{ color: "red" }}>❤</span> by Moritz Béla Meier
             </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "rgba(0,0,0,0.7)",
+                userSelect: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Powered by <span style={{ color: "black" }}>Vercel</span>
+            </Typography>
             {isSignedIn ? (
               <>
                 <Typography variant="body1" sx={{ whiteSpace: "nowrap" }}>
