@@ -19,6 +19,7 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 const SERVICE_LABELS: Record<string, string> = {
   serielle_verbindung: "Serielle Verbindung",
   flask_server: "Flask Server",
+  relay_gateway: "Relay Gateway",
 };
 
 type Service = {
