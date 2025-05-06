@@ -19,13 +19,12 @@ export default function ImpressumPage() {
           Deutschland
         </Typography>
         <Typography variant="body1" paragraph>
-          <strong>Betrieben durch:</strong><br />
-          Andreas Meier
-          Moritz Béla Meier
-        </Typography>
-        <Typography variant="body1" paragraph>
           <strong>Verantwortlich gemäß § 18 MStV:</strong><br />
           Andreas Meier
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Betrieben durch:</strong><br />
+          Moritz Béla Meier, vertreten durch seinen gesetzlichen Vertreter Andreas Meier
         </Typography>
         <Typography variant="body1" paragraph>
           <strong>Kontakt:</strong><br />
