@@ -1,147 +1,21 @@
-"use client";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import ServicesPage from "./ServicesPage";
 
-import React, { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import Chip from "@mui/material/Chip";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import Alert from "@mui/material/Alert";
-import Stack from "@mui/material/Stack";
+const ACCESS_KEYS = ["admin"];
 
-type Service = {
-  name: string;
-  running: boolean;
-  pid: number | null;
-};
+export default async function ServicePage() {
+  const user = await currentUser();
 
-type ServiceStatus = {
-  serial: Service;
-  flask: Service;
-};
+  // Hole das publicMetadata-Objekt
+  const meta = user?.publicMetadata as Record<string, any> | undefined;
 
-export default function ServicesPage() {
-  const [status, setStatus] = useState<ServiceStatus | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({});
+  // Prüfe, ob mindestens einer der ACCESS_KEYS auf 1 steht
+  const hasAccess = meta && ACCESS_KEYS.some(key => meta[key] === 1);
 
-  // Status abrufen
-  const fetchStatus = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch("http://192.168.6.71:3000/api/status");
-      if (!res.ok) throw new Error("Fehler beim Abrufen des Service-Status");
-      const data = await res.json();
-      setStatus(data);
-    } catch (err) {
-      setError("Fehler beim Abrufen des Service-Status");
-      setStatus(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Service starten/stoppen
-  const controlService = async (service: string, action: "start" | "stop") => {
-    const key = `${service}_${action}`;
-    try {
-      setActionLoading((prev) => ({ ...prev, [key]: true }));
-      const res = await fetch(`https://api.moritxius.de/api/${action}/${service}`, {
-        method: "POST",
-      });
-      if (!res.ok) throw new Error("Fehler bei der Aktion");
-      await fetchStatus();
-    } catch (err) {
-      setError(`Fehler beim ${action === "start" ? "Starten" : "Stoppen"} von ${service}`);
-    } finally {
-      setActionLoading((prev) => ({ ...prev, [key]: false }));
-    }
-  };
-
-  useEffect(() => {
-    fetchStatus();
-    const interval = setInterval(fetchStatus, 10000); // alle 10s aktualisieren
-    return () => clearInterval(interval);
-  }, []);
-
-  if (loading && !status) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
+  if (!user || !hasAccess) {
+    redirect("/unauthorized");
   }
 
-  return (
-    <Box sx={{ maxWidth: 700, mx: "auto", py: 4, px: 2 }}>
-      <Typography variant="h4" gutterBottom>
-        Services verwalten
-      </Typography>
-
-      {error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-      )}
-
-      <Button
-        variant="outlined"
-        onClick={fetchStatus}
-        sx={{ mb: 3 }}
-        disabled={loading}
-      >
-        {loading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-        Status aktualisieren
-      </Button>
-
-      <Stack spacing={3}>
-        {status &&
-          Object.entries(status).map(([serviceId, serviceData]) => (
-            <Card variant="outlined" key={serviceId}>
-              <CardContent>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography variant="h6">{serviceData.name}</Typography>
-                  <Chip
-                    icon={serviceData.running ? <CheckCircleIcon /> : <CancelIcon />}
-                    label={serviceData.running ? "Aktiv" : "Inaktiv"}
-                    color={serviceData.running ? "success" : "error"}
-                  />
-                </Box>
-                {serviceData.pid && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    PID: {serviceData.pid}
-                  </Typography>
-                )}
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={serviceData.running || actionLoading[`${serviceId}_start`]}
-                    onClick={() => controlService(serviceId, "start")}
-                  >
-                    {actionLoading[`${serviceId}_start`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-                    Starten
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    disabled={!serviceData.running || actionLoading[`${serviceId}_stop`]}
-                    onClick={() => controlService(serviceId, "stop")}
-                  >
-                    {actionLoading[`${serviceId}_stop`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-                    Stoppen
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
-      </Stack>
-    </Box>
-  );
+  return <ServicesPage />;
 }
