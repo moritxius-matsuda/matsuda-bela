@@ -88,6 +88,7 @@ export default function Navbar() {
               minWidth: 0,
             }}
           >
+            <img src="https://moritxius.nl/img/rechteck-wei%C3%9F.png" width="5%" height="5%"></img>
             {navLinks.map((link) => (
               <Button
                 key={link.href}
@@ -307,16 +308,6 @@ export default function Navbar() {
               }}
             >
               Made with <span style={{ color: "red" }}>❤</span> by Moritz Béla Meier
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: "rgba(0,0,0,0.7)",
-                userSelect: "none",
-                whiteSpace: "nowrap",
-              }}
-            >
-              Powered by <span style={{ color: "black" }}>Vercel</span>
             </Typography>
             {isSignedIn ? (
               <>
