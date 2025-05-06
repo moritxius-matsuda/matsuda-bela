@@ -14,13 +14,17 @@ export default function ImpressumPage() {
         <Typography variant="body1" paragraph>
           <strong>Anbieterkennzeichnung nach § 5 DDG und Verantwortlicher nach § 55 RstV:</strong><br />
           Matsuda Béla<br />
-          Pfalzeler Straße 1<br />
-          54293 Trier<br />
+          Am Weidengraben 65<br />
+          54296 Trier<br />
           Deutschland
         </Typography>
         <Typography variant="body1" paragraph>
-          <strong>Vertreten durch:</strong><br />
+          <strong>Betrieben durch (Haftungsausschluss gemäß § 55 Absatz 2 Satz 3 RStV):</strong><br />
           Moritz Béla Meier
+        </Typography>
+        <Typography variant="body1" paragraph>
+          <strong>Medienrechtlich verantwortlich:</strong><br />
+          Andreas Meier
         </Typography>
         <Typography variant="body1" paragraph>
           <strong>Kontakt:</strong><br />
