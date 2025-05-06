@@ -193,7 +193,7 @@ export default function ServicesPage() {
         </>
       ) : (
         <Typography color="text.secondary" sx={{ mt: 1 }}>
-          Nur Admins können die Dienste steuern. Admin-Status: {isAdmin}
+          Kein Zugriff. Sie sind kein Admin.
         </Typography>
       )}
     </Box>
