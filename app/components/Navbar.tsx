@@ -88,7 +88,7 @@ export default function Navbar() {
               minWidth: 0,
             }}
           >
-            <img src="https://moritxius.nl/img/rechteck-wei%C3%9F.png" width="5%" height="5%"></img>
+            <img src="https://moritxius.nl/img/rechteck-wei%C3%9F.png" width="10%" height="10%"></img>
             {navLinks.map((link) => (
               <Button
                 key={link.href}
