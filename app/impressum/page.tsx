@@ -12,18 +12,19 @@ export default function ImpressumPage() {
       </Typography>
       <Box sx={{ mb: 2 }}>
         <Typography variant="body1" paragraph>
-          <strong>Anbieterkennzeichnung nach § 5 DDG und Verantwortlicher nach § 18 MStV:</strong><br />
-          Matsuda Béla<br />
+          <strong>Anbieterkennzeichnung nach § 5 DDG:</strong><br />
+          Andreas Meier<br />
           Am Weidengraben 65<br />
           54296 Trier<br />
           Deutschland
         </Typography>
         <Typography variant="body1" paragraph>
-          <strong>Betrieben durch (Haftungsausschluss gemäß § 18 Absatz 2 Satz 3, 4 MStV):</strong><br />
+          <strong>Betrieben durch:</strong><br />
+          Andreas Meier
           Moritz Béla Meier
         </Typography>
         <Typography variant="body1" paragraph>
-          <strong>Medienrechtlich verantwortlich gemäß § 18 MStV:</strong><br />
+          <strong>Verantwortlich gemäß § 18 MStV:</strong><br />
           Andreas Meier
         </Typography>
         <Typography variant="body1" paragraph>
