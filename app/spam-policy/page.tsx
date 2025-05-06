@@ -17,13 +17,13 @@ export default function SpamPolicyPage() {
         Deutsch:
       </Typography>
       <Typography paragraph>
-        Der Versand unerwünschter, kommerzieller Nachrichten (per E-Mail oder Post) an Adressen im Verantwortungsbereich dieses Internetauftritts ist untersagt und kann mit einer Bearbeitungsgebühr von <strong>35 Euro pro Nachricht</strong> belegt werden.
+        Der Versand unerwünschter kommerzieller Nachrichten an die auf diesem Internetauftritt angegebenen Kontaktdaten ist ohne vorherige ausdrückliche Einwilligung <strong>untersagt</strong>. Dies gilt insbesondere für Werbung per E-Mail, Post, Telefon oder andere elektronische Kommunikationswege.
       </Typography>
       <Typography paragraph>
-        Bei Verwendung gefälschter oder irreführender Absenderinformationen behalten wir uns vor, zusätzliche Gebühren in Höhe des technischen und rechtlichen Aufwands zur Nachverfolgung und Durchsetzung geltend zu machen.
+        Jegliche unverlangte Werbung stellt einen Verstoß gegen <strong>§ 7 Abs. 2 Nr. 2 des Gesetzes gegen den unlauteren Wettbewerb (UWG)</strong> dar und kann rechtliche Konsequenzen nach sich ziehen. Zudem kann der unrechtmäßige Umgang mit personenbezogenen Daten einen Verstoß gegen die Datenschutz-Grundverordnung (DSGVO) darstellen.
       </Typography>
       <Typography paragraph>
-        Mit dem Versenden solcher Nachrichten erklären Sie sich automatisch mit dieser Regelung einverstanden.
+        Wir behalten uns ausdrücklich vor, gegen unerlaubte Werbesendungen rechtliche Schritte einzuleiten. Dies umfasst insbesondere Unterlassungs- und Schadensersatzansprüche sowie die Meldung an die zuständigen Behörden.
       </Typography>
 
       <Divider sx={{ my: 4 }} />
@@ -32,13 +32,13 @@ export default function SpamPolicyPage() {
         English:
       </Typography>
       <Typography paragraph>
-        Sending unsolicited commercial messages (via email or postal mail) to addresses under the responsibility of this service is prohibited and may result in a processing fee of <strong>35€ per message</strong>.
+        The sending of unsolicited commercial messages to the contact details provided on this website is <strong>prohibited</strong> without prior express consent. This applies in particular to advertising by e-mail, post, telephone or other electronic communication channels.
       </Typography>
       <Typography paragraph>
-        If forged or misleading sender information is used, we reserve the right to charge additional fees based on the technical and legal effort required to trace and enforce our policy.
+        Any unsolicited advertising constitutes a violation of <strong>Section 7 (2) No. 2 of the German Act against Unfair Competition (UWG)</strong> and may have legal consequences. In addition, the unlawful handling of personal data may constitute a breach of the General Data Protection Regulation (GDPR).
       </Typography>
       <Typography paragraph>
-        By sending such messages, you automatically agree to these terms.
+        Wir behalten uns ausdrücklich vor, gegen unerlaubte Werbesendungen rechtliche Schritte einzuleiten. Dies umfasst insbesondere Unterlassungs- und Schadensersatzansprüche sowie die Meldung an die zuständigen Behörden.
       </Typography>
     </Box>
   );
