@@ -43,23 +43,36 @@ export default function ServicesPage() {
   const [relayLoading, setRelayLoading] = useState(false);
   const [relayError, setRelayError] = useState<string | null>(null);
   const [relayActionLoading, setRelayActionLoading] = useState<{ [key: number]: boolean }>({});
+  const [manuallyStopped, setManuallyStopped] = useState<Set<string>>(new Set());
 
   // Crash detection logic
   useEffect(() => {
     if (prevStatus && status) {
       const newCrashes = status
-        .filter(service => 
-          prevStatus.find(s => s.name === service.name)?.running === true &&
-          service.running === null
-        )
+        .filter(service => {
+          const wasRunning = prevStatus.find(s => s.name === service.name)?.running === true;
+          const isCrashed = service.running === null;
+          const wasManuallyStopped = manuallyStopped.has(service.name);
+          
+          return wasRunning && isCrashed && !wasManuallyStopped;
+        })
         .map(service => service.name);
-
+  
       if (newCrashes.length > 0) {
         setCrashedServices(prev => [...new Set([...prev, ...newCrashes])]);
       }
+      
+      // Bereinige manuelle Stopps die erfolgreich waren
+      setManuallyStopped(prev => {
+        const newSet = new Set(prev);
+        status.forEach(service => {
+          if (service.running === false) newSet.delete(service.name);
+        });
+        return newSet;
+      });
     }
     setPrevStatus(status);
-  }, [status]);
+  }, [status]);  
 
   // Clear recovered crashes
   useEffect(() => {
@@ -92,16 +105,32 @@ export default function ServicesPage() {
   const controlService = async (service: string, action: "start" | "stop") => {
     const key = `${service}_${action}`;
     try {
+      if (action === "stop") {
+        setManuallyStopped(prev => new Set([...prev, service]));
+      }
+      
       setActionLoading(prev => ({ ...prev, [key]: true }));
       const res = await fetch(`https://api.moritxius.de/api/${action}/${service}`, {
         method: "POST",
       });
+      
       if (!res.ok) throw new Error("Fehler bei der Aktion");
       await fetchStatus();
     } catch (err) {
       setError(`Fehler beim ${action === "start" ? "Starten" : "Stoppen"} von ${service.replace("_", " ")}`);
     } finally {
       setActionLoading(prev => ({ ...prev, [key]: false }));
+      
+      // Entferne nach 15 Sekunden aus manuell gestoppt
+      if (action === "stop") {
+        setTimeout(() => {
+          setManuallyStopped(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(service);
+            return newSet;
+          });
+        }, 15000);
+      }
     }
   };
 
