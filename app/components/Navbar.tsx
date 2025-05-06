@@ -75,6 +75,32 @@ export default function Navbar() {
           py: 0,
         }}
       >
+        {/* Logo ganz links */}
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        height: { xs: 56, sm: 64 },
+        pr: 2, // Padding rechts
+      }}
+    >
+      <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+        <img
+          src="https://moritxius.nl/img/rechteck-weiß.png"
+          alt="Logo"
+          style={{
+            height: "80%",       // 80% der Navbar-Höhe für etwas Luft
+            maxHeight: 48,       // Maximal 48px hoch (passt zu Material UI)
+            minHeight: 32,
+            padding: "4px 12px", // Oben/unten/links/rechts Padding
+            background: "transparent",
+            borderRadius: 6,
+            display: "block",
+          }}
+        />
+      </Link>
+    </Box>
+
         {/* Links (Desktop) */}
         {!isMobile && (
           <Box
@@ -88,7 +114,7 @@ export default function Navbar() {
               minWidth: 0,
             }}
           >
-            <img src="https://moritxius.nl/img/rechteck-wei%C3%9F.png" width="10%" height="10%"></img>
+        
             {navLinks.map((link) => (
               <Button
                 key={link.href}
