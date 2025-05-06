@@ -163,6 +163,13 @@ export default function Navbar() {
               >
                 Services
               </MenuItem>
+              <MenuItem
+                component={Link}
+                href="/servers/terminal"
+                onClick={handleServersMenuClose}
+              >
+                Terminal 183
+              </MenuItem>
             </Menu>
 
             {/* Guides Dropdown */}
@@ -296,6 +303,16 @@ export default function Navbar() {
                     onClick={() => setDrawerOpen(false)}
                   >
                     <ListItemText primary="Services" />
+                  </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    href="/servers/terminal"
+                    sx={{ pl: 4 }}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <ListItemText primary="Terminal 183" />
                   </ListItemButton>
                 </ListItem>
               </List>
