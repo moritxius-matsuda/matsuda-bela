@@ -15,11 +15,13 @@ import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import { useUser } from "@clerk/nextjs";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import Tooltip from "@mui/material/Tooltip";
 
 const SERVICE_LABELS: Record<string, string> = {
   serielle_verbindung: "Serielle Verbindung",
   flask_server: "Flask Server",
   relay_gateway: "Relay Gateway",
+  heartbeat: "Crash Überwachung - Heartbeat",
 };
 
 type Service = {
@@ -192,6 +194,7 @@ export default function ServicesPage() {
     <Stack spacing={3} sx={{ mb: 6 }}>
       {status?.map((service) => {
         const isCrashed = crashData !== null;
+        const isEssentialService = service.name === 'heartbeat';
         
         let statusLabel = "Unbekannt";
         let statusColor: "success" | "error" | "warning" | "default" = "default";
@@ -222,6 +225,14 @@ export default function ServicesPage() {
                       (Neustart erforderlich)
                     </Typography>
                   )}
+                  {isEssentialService && (
+                    <Chip 
+                      label="Essentiell" 
+                      color="warning" 
+                      size="small" 
+                      sx={{ ml: 1 }} 
+                    />
+                  )}
                 </Typography>
                 <Chip
                   icon={statusIcon}
@@ -235,28 +246,45 @@ export default function ServicesPage() {
               <Box sx={{ display: "flex", gap: 2 }}>
                 {isAdmin ? (
                   <>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      disabled={(service.running === true && !isCrashed) || actionLoading[`${service.name}_start`]}
-                      onClick={() => controlService(service.name, "start")}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={(service.running === true && !isCrashed) || actionLoading[`${service.name}_start`]}
+                        onClick={() => controlService(service.name, "start")}
+                      >
+                        {actionLoading[`${service.name}_start`] ? (
+                          <CircularProgress size={20} sx={{ mr: 1 }} />
+                        ) : null}
+                        Starten
+                      </Button>
+                      {isEssentialService && (
+                        <Typography variant="caption" color="text.secondary">
+                          (Automatischer Neustart aktiv)
+                        </Typography>
+                      )}
+                    </Box>
+                    <Tooltip 
+                      title={isEssentialService ? "Dieser essentielle Dienst kann nicht gestoppt werden" : ""}
                     >
-                      {actionLoading[`${service.name}_start`] ? (
-                        <CircularProgress size={20} sx={{ mr: 1 }} />
-                      ) : null}
-                      Starten
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="error"
-                      disabled={service.running !== true || actionLoading[`${service.name}_stop`]}
-                      onClick={() => controlService(service.name, "stop")}
-                    >
-                      {actionLoading[`${service.name}_stop`] ? (
-                        <CircularProgress size={20} sx={{ mr: 1 }} />
-                      ) : null}
-                      Stoppen
-                    </Button>
+                      <span>
+                        <Button
+                          variant="contained"
+                          color="error"
+                          disabled={
+                            service.running !== true || 
+                            actionLoading[`${service.name}_stop`] ||
+                            isEssentialService
+                          }
+                          onClick={() => controlService(service.name, "stop")}
+                        >
+                          {actionLoading[`${service.name}_stop`] ? (
+                            <CircularProgress size={20} sx={{ mr: 1 }} />
+                          ) : null}
+                          Stoppen
+                        </Button>
+                      </span>
+                    </Tooltip>
                   </>
                 ) : (
                   <Typography color="text.secondary" sx={{ mt: 1 }}>
