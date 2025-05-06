@@ -27,13 +27,13 @@ type Service = {
   running: boolean | null;
 };
 
-const { user } = useUser();
-const isAdmin = user?.publicMetadata?.admin === 1;
-
 type RelayState = { num: number; isOn: boolean };
 const RELAY_API_PASSWORD = "r>(gy3J)g~8S#=v§";
 
 export default function ServicesPage() {
+  // Zugriffsrechte
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.admin === 1;
   // Services
   const [status, setStatus] = useState<Service[] | null>(null);
   const [loading, setLoading] = useState(true);
