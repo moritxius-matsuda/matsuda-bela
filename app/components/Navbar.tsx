@@ -129,6 +129,13 @@ export default function Navbar() {
               >
                 JCWSMP
               </MenuItem>
+              <MenuItem
+                component={Link}
+                href="/servers/services"
+                onClick={handleServersMenuClose}
+              >
+                Services
+              </MenuItem>
             </Menu>
 
             {/* Guides Dropdown */}
