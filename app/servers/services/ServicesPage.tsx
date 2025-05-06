@@ -35,7 +35,7 @@ export default function ServicesPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("http://192.168.6.71:3000/api/status");
+      const res = await fetch("https://api.moritxius.de/api/status");
       if (!res.ok) throw new Error("Fehler beim Abrufen des Service-Status");
       const data = await res.json();
       setStatus(data);
