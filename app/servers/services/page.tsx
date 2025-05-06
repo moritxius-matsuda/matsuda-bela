@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import ServicesPage from "./ServicesPage";
 
-const ACCESS_KEYS = ["admin"];
+const ACCESS_KEYS = ["admin", "services"];
 
 export default async function ServicePage() {
   const user = await currentUser();

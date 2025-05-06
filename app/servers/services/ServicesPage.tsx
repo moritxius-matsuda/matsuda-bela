@@ -13,7 +13,8 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
-import Grid from "@mui/material/Grid"; // <-- WICHTIG: Grid importieren!
+import { useUser } from "@clerk/nextjs";
+
 
 const SERVICE_LABELS: Record<string, string> = {
   serielle_verbindung: "Serielle Verbindung",
@@ -25,6 +26,9 @@ type Service = {
   pid: number | null;
   running: boolean | null;
 };
+
+const { user } = useUser();
+const isAdmin = user?.publicMetadata?.admin === 1;
 
 type RelayState = { num: number; isOn: boolean };
 const RELAY_API_PASSWORD = "r>(gy3J)g~8S#=v§";
@@ -152,41 +156,50 @@ export default function ServicesPage() {
           }
 
           return (
-            <Card variant="outlined" key={service.name}>
-              <CardContent>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography variant="h6">{SERVICE_LABELS[service.name] || service.name}</Typography>
-                  <Chip
-                    icon={statusIcon}
-                    label={statusLabel}
-                    color={statusColor}
-                  />
-                </Box>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  PID: {service.pid !== null ? service.pid : "-"}
-                </Typography>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    disabled={service.running === true || actionLoading[`${service.name}_start`]}
-                    onClick={() => controlService(service.name, "start")}
-                  >
-                    {actionLoading[`${service.name}_start`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-                    Starten
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    disabled={service.running !== true || actionLoading[`${service.name}_stop`]}
-                    onClick={() => controlService(service.name, "stop")}
-                  >
-                    {actionLoading[`${service.name}_stop`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-                    Stoppen
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
+<Card variant="outlined" key={service.name}>
+  <CardContent>
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+      <Typography variant="h6">{SERVICE_LABELS[service.name] || service.name}</Typography>
+      <Chip
+        icon={statusIcon}
+        label={statusLabel}
+        color={statusColor}
+      />
+    </Box>
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+      PID: {service.pid !== null ? service.pid : "-"}
+    </Typography>
+    <Box sx={{ display: "flex", gap: 2 }}>
+      {isAdmin ? (
+        <>
+          <Button
+            variant="contained"
+            color="primary"
+            disabled={service.running === true || actionLoading[`${service.name}_start`]}
+            onClick={() => controlService(service.name, "start")}
+          >
+            {actionLoading[`${service.name}_start`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Starten
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={service.running !== true || actionLoading[`${service.name}_stop`]}
+            onClick={() => controlService(service.name, "stop")}
+          >
+            {actionLoading[`${service.name}_stop`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+            Stoppen
+          </Button>
+        </>
+      ) : (
+        <Typography color="text.secondary" sx={{ mt: 1 }}>
+          Nur Admins können die Dienste steuern. Admin-Status: {isAdmin}
+        </Typography>
+      )}
+    </Box>
+  </CardContent>
+</Card>
+
           );
         })}
     </Stack>
