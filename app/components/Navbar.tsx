@@ -59,7 +59,7 @@ export default function Navbar() {
   const navLinks = [
     { label: "HOME", href: "/" },
     ...(isSignedIn ? [{ label: "ADMIN", href: "/admin" }] : []),
-    { label: "IMPRESSUM", href: "/impressum" },
+    { label: "IMPRESSUM & DSE", href: "/impressum" },
     { label: "SPAM-Policy", href: "/spam-policy" },
   ];
 
