@@ -15,7 +15,6 @@ import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 import { useUser } from "@clerk/nextjs";
 
-
 const SERVICE_LABELS: Record<string, string> = {
   serielle_verbindung: "Serielle Verbindung",
   flask_server: "Flask Server",
@@ -31,22 +30,49 @@ type RelayState = { num: number; isOn: boolean };
 const RELAY_API_PASSWORD = "r>(gy3J)g~8S#=v§";
 
 export default function ServicesPage() {
-  // Zugriffsrechte
   const { user } = useUser();
   const isAdmin = user?.publicMetadata?.admin === 1;
-  // Services
   const [status, setStatus] = useState<Service[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({});
+  const [prevStatus, setPrevStatus] = useState<Service[] | null>(null);
+  const [crashedServices, setCrashedServices] = useState<string[]>([]);
 
-  // Relays
   const [relayStatus, setRelayStatus] = useState<RelayState[] | null>(null);
   const [relayLoading, setRelayLoading] = useState(false);
   const [relayError, setRelayError] = useState<string | null>(null);
   const [relayActionLoading, setRelayActionLoading] = useState<{ [key: number]: boolean }>({});
 
-  // Service-Status abrufen
+  // Crash detection logic
+  useEffect(() => {
+    if (prevStatus && status) {
+      const newCrashes = status
+        .filter(service => 
+          prevStatus.find(s => s.name === service.name)?.running === true &&
+          service.running === null
+        )
+        .map(service => service.name);
+
+      if (newCrashes.length > 0) {
+        setCrashedServices(prev => [...new Set([...prev, ...newCrashes])]);
+      }
+    }
+    setPrevStatus(status);
+  }, [status]);
+
+  // Clear recovered crashes
+  useEffect(() => {
+    if (status) {
+      setCrashedServices(prev =>
+        prev.filter(name => {
+          const service = status.find(s => s.name === name);
+          return service?.running === null;
+        })
+      );
+    }
+  }, [status]);
+
   const fetchStatus = async () => {
     try {
       setLoading(true);
@@ -63,11 +89,10 @@ export default function ServicesPage() {
     }
   };
 
-  // Service starten/stoppen
   const controlService = async (service: string, action: "start" | "stop") => {
     const key = `${service}_${action}`;
     try {
-      setActionLoading((prev) => ({ ...prev, [key]: true }));
+      setActionLoading(prev => ({ ...prev, [key]: true }));
       const res = await fetch(`https://api.moritxius.de/api/${action}/${service}`, {
         method: "POST",
       });
@@ -76,11 +101,10 @@ export default function ServicesPage() {
     } catch (err) {
       setError(`Fehler beim ${action === "start" ? "Starten" : "Stoppen"} von ${service.replace("_", " ")}`);
     } finally {
-      setActionLoading((prev) => ({ ...prev, [key]: false }));
+      setActionLoading(prev => ({ ...prev, [key]: false }));
     }
   };
 
-  // Relay-Status abrufen
   const fetchRelayStatus = async () => {
     try {
       setRelayLoading(true);
@@ -92,7 +116,6 @@ export default function ServicesPage() {
       });
       if (!res.ok) throw new Error("Fehler beim Abrufen des Relay-Status");
       const data = await res.json();
-      // Wandelt das Objekt in ein Array von {num, isOn}
       const relaysArr: RelayState[] = Object.entries(data.relays).map(([num, state]) => ({
         num: Number(num),
         isOn: state === "ON",
@@ -106,9 +129,8 @@ export default function ServicesPage() {
     }
   };
 
-  // Relay schalten
   const setRelay = async (relay: number, state: "open" | "close") => {
-    setRelayActionLoading((prev) => ({ ...prev, [relay]: true }));
+    setRelayActionLoading(prev => ({ ...prev, [relay]: true }));
     try {
       const res = await fetch(`https://door.moritxius.de/api/${relay}/${state}`, {
         method: "POST",
@@ -121,11 +143,10 @@ export default function ServicesPage() {
     } catch (err) {
       setRelayError(`Fehler beim Schalten von Relais ${relay}`);
     } finally {
-      setRelayActionLoading((prev) => ({ ...prev, [relay]: false }));
+      setRelayActionLoading(prev => ({ ...prev, [relay]: false }));
     }
   };
 
-  // Initial laden
   useEffect(() => {
     fetchStatus();
     fetchRelayStatus();
@@ -137,15 +158,19 @@ export default function ServicesPage() {
     };
   }, []);
 
-  // Services-UI
   const renderServices = () => (
     <Stack spacing={3} sx={{ mb: 6 }}>
       {status &&
-        status.map((service) => {
+        status.map(service => {
           let statusLabel = "Unbekannt";
-          let statusColor: "success" | "error" | "default" = "default";
+          let statusColor: "success" | "error" | "warning" | "default" = "default";
           let statusIcon: React.ReactNode = <HelpOutlineIcon />;
-          if (service.running === true) {
+
+          if (crashedServices.includes(service.name)) {
+            statusLabel = "Abgestürzt";
+            statusColor = "warning";
+            statusIcon = <CancelIcon />;
+          } else if (service.running === true) {
             statusLabel = "Aktiv";
             statusColor = "success";
             statusIcon = <CheckCircleIcon />;
@@ -156,139 +181,148 @@ export default function ServicesPage() {
           }
 
           return (
-<Card variant="outlined" key={service.name}>
-  <CardContent>
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-      <Typography variant="h6">{SERVICE_LABELS[service.name] || service.name}</Typography>
-      <Chip
-        icon={statusIcon}
-        label={statusLabel}
-        color={statusColor}
-      />
-    </Box>
-    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-      PID: {service.pid !== null ? service.pid : "-"}
-    </Typography>
-    <Box sx={{ display: "flex", gap: 2 }}>
-      {isAdmin ? (
-        <>
-          <Button
-            variant="contained"
-            color="primary"
-            disabled={service.running === true || actionLoading[`${service.name}_start`]}
-            onClick={() => controlService(service.name, "start")}
-          >
-            {actionLoading[`${service.name}_start`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            Starten
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            disabled={service.running !== true || actionLoading[`${service.name}_stop`]}
-            onClick={() => controlService(service.name, "stop")}
-          >
-            {actionLoading[`${service.name}_stop`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-            Stoppen
-          </Button>
-        </>
-      ) : (
-        <Typography color="text.secondary" sx={{ mt: 1 }}>
-          Kein Zugriff. Sie sind kein Admin.
-        </Typography>
-      )}
-    </Box>
-  </CardContent>
-</Card>
-
+            <Card variant="outlined" key={service.name}>
+              <CardContent>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                  <Typography variant="h6">
+                    {SERVICE_LABELS[service.name] || service.name}
+                    {crashedServices.includes(service.name) && (
+                      <Typography variant="caption" color="error" sx={{ ml: 1 }}>
+                        (Neustart erforderlich)
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Chip
+                    icon={statusIcon}
+                    label={statusLabel}
+                    color={statusColor}
+                  />
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  PID: {service.pid !== null ? service.pid : "-"}
+                </Typography>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  {isAdmin ? (
+                    <>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        disabled={service.running === true || actionLoading[`${service.name}_start`]}
+                        onClick={() => controlService(service.name, "start")}
+                      >
+                        {actionLoading[`${service.name}_start`] ? (
+                          <CircularProgress size={20} sx={{ mr: 1 }} />
+                        ) : null}
+                        Starten
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        disabled={service.running !== true || actionLoading[`${service.name}_stop`]}
+                        onClick={() => controlService(service.name, "stop")}
+                      >
+                        {actionLoading[`${service.name}_stop`] ? (
+                          <CircularProgress size={20} sx={{ mr: 1 }} />
+                        ) : null}
+                        Stoppen
+                      </Button>
+                    </>
+                  ) : (
+                    <Typography color="text.secondary" sx={{ mt: 1 }}>
+                      Kein Zugriff. Sie sind kein Admin.
+                    </Typography>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
           );
         })}
     </Stack>
   );
 
-  // Relais-UI
   const renderRelays = () => (
     <Card variant="outlined" sx={{ mb: 6 }}>
-  <CardContent>
-    <Typography variant="h5" gutterBottom>
-      Relay Gateway
-    </Typography>
-    {relayError && (
-      <Alert severity="error" sx={{ mb: 2 }}>
-        {relayError}
-      </Alert>
-    )}
-    <Button
-      variant="outlined"
-      onClick={fetchRelayStatus}
-      sx={{ mb: 3 }}
-      disabled={relayLoading}
-    >
-      {relayLoading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
-      Status aktualisieren
-    </Button>
-    <Box
-      sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: 2,
-        justifyContent: "flex-start",
-      }}
-    >
-      {relayStatus &&
-        relayStatus.map(({ num, isOn }) => (
-          <Box
-            key={num}
-            sx={{
-              width: { xs: "100%", sm: "48%", md: "23%" },
-              minWidth: 140,
-              mb: 2,
-              p: 1,
-              bgcolor: "background.paper",
-              borderRadius: 2,
-              boxShadow: 1,
-              textAlign: "center",
-            }}
-          >
-            <Typography variant="subtitle1" sx={{ mb: 1 }}>
-              Relais {num}
-            </Typography>
-            <Chip
-              icon={isOn ? <CheckCircleIcon /> : <CancelIcon />}
-              label={isOn ? "An" : "Aus"}
-              color={isOn ? "success" : "error"}
-              sx={{ mb: 1 }}
-            />
-            <Box sx={{ display: "flex", gap: 1, justifyContent: "center", mt: 1 }}>
-              <Button
-                size="small"
-                variant="contained"
-                color="primary"
-                disabled={isOn || relayActionLoading[num]}
-                onClick={() => setRelay(num, "open")}
+      <CardContent>
+        <Typography variant="h5" gutterBottom>
+          Relay Gateway
+        </Typography>
+        {relayError && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {relayError}
+          </Alert>
+        )}
+        <Button
+          variant="outlined"
+          onClick={fetchRelayStatus}
+          sx={{ mb: 3 }}
+          disabled={relayLoading}
+        >
+          {relayLoading ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
+          Status aktualisieren
+        </Button>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            justifyContent: "flex-start",
+          }}
+        >
+          {relayStatus &&
+            relayStatus.map(({ num, isOn }) => (
+              <Box
+                key={num}
+                sx={{
+                  width: { xs: "100%", sm: "48%", md: "23%" },
+                  minWidth: 140,
+                  mb: 2,
+                  p: 1,
+                  bgcolor: "background.paper",
+                  borderRadius: 2,
+                  boxShadow: 1,
+                  textAlign: "center",
+                }}
               >
-                {relayActionLoading[num] && !isOn ? (
-                  <CircularProgress size={16} sx={{ mr: 1 }} />
-                ) : null}
-                An
-              </Button>
-              <Button
-                size="small"
-                variant="contained"
-                color="error"
-                disabled={!isOn || relayActionLoading[num]}
-                onClick={() => setRelay(num, "close")}
-              >
-                {relayActionLoading[num] && isOn ? (
-                  <CircularProgress size={16} sx={{ mr: 1 }} />
-                ) : null}
-                Aus
-              </Button>
-            </Box>
-          </Box>
-        ))}
-    </Box>
-  </CardContent>
-</Card>
+                <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                  Relais {num}
+                </Typography>
+                <Chip
+                  icon={isOn ? <CheckCircleIcon /> : <CancelIcon />}
+                  label={isOn ? "An" : "Aus"}
+                  color={isOn ? "success" : "error"}
+                  sx={{ mb: 1 }}
+                />
+                <Box sx={{ display: "flex", gap: 1, justifyContent: "center", mt: 1 }}>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="primary"
+                    disabled={isOn || relayActionLoading[num]}
+                    onClick={() => setRelay(num, "open")}
+                  >
+                    {relayActionLoading[num] && !isOn ? (
+                      <CircularProgress size={16} sx={{ mr: 1 }} />
+                    ) : null}
+                    An
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    color="error"
+                    disabled={!isOn || relayActionLoading[num]}
+                    onClick={() => setRelay(num, "close")}
+                  >
+                    {relayActionLoading[num] && isOn ? (
+                      <CircularProgress size={16} sx={{ mr: 1 }} />
+                    ) : null}
+                    Aus
+                  </Button>
+                </Box>
+              </Box>
+            ))}
+        </Box>
+      </CardContent>
+    </Card>
   );
 
   if (loading && !status) {
@@ -304,6 +338,15 @@ export default function ServicesPage() {
       <Typography variant="h4" gutterBottom>
         Services verwalten
       </Typography>
+
+      {crashedServices.length > 0 && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Die folgenden Dienste sind unerwartet abgestürzt:{" "}
+          {crashedServices
+            .map(name => SERVICE_LABELS[name] || name)
+            .join(", ")}
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }}>
