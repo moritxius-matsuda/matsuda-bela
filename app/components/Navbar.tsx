@@ -261,6 +261,16 @@ export default function Navbar() {
                     <ListItemText primary="JCWSMP" />
                   </ListItemButton>
                 </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    href="/servers/services"
+                    sx={{ pl: 4 }}
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <ListItemText primary="Services" />
+                  </ListItemButton>
+                </ListItem>
               </List>
             </Collapse>
 
