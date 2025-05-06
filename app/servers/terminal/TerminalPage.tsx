@@ -14,7 +14,7 @@ const WebSSH = () => {
             term.open(terminalRef.current);
             term.write("Verbinde mit SSH...\r\n");
 
-            ws = new WebSocket("ws://home.dm1lx:8980");
+            ws = new WebSocket("https://ssh.moritxius.de");
 
             ws.onmessage = (event) => {
                 term.write(event.data + "\r\n");
