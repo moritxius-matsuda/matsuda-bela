@@ -13,19 +13,14 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import Alert from "@mui/material/Alert";
 import Stack from "@mui/material/Stack";
 
-type Service = {
-  name: string;
-  running: boolean;
-  pid: number | null;
-};
-
-type ServiceStatus = {
-  serial: Service;
-  flask: Service;
+// Mapping für Anzeige
+const SERVICE_LABELS: Record<string, string> = {
+  serial: "Serielle Verbindung",
+  flask: "Flask Server",
 };
 
 export default function ServicesPage() {
-  const [status, setStatus] = useState<ServiceStatus | null>(null);
+  const [status, setStatus] = useState<{ [key: string]: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<{ [key: string]: boolean }>({});
@@ -102,27 +97,22 @@ export default function ServicesPage() {
 
       <Stack spacing={3}>
         {status &&
-          Object.entries(status).map(([serviceId, serviceData]) => (
+          Object.entries(status).map(([serviceId, isRunning]) => (
             <Card variant="outlined" key={serviceId}>
               <CardContent>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                  <Typography variant="h6">{serviceData.name}</Typography>
+                  <Typography variant="h6">{SERVICE_LABELS[serviceId] || serviceId}</Typography>
                   <Chip
-                    icon={serviceData.running ? <CheckCircleIcon /> : <CancelIcon />}
-                    label={serviceData.running ? "Aktiv" : "Inaktiv"}
-                    color={serviceData.running ? "success" : "error"}
+                    icon={isRunning ? <CheckCircleIcon /> : <CancelIcon />}
+                    label={isRunning ? "Aktiv" : "Inaktiv"}
+                    color={isRunning ? "success" : "error"}
                   />
                 </Box>
-                {serviceData.pid && (
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    PID: {serviceData.pid}
-                  </Typography>
-                )}
                 <Box sx={{ display: "flex", gap: 2 }}>
                   <Button
                     variant="contained"
                     color="primary"
-                    disabled={serviceData.running || actionLoading[`${serviceId}_start`]}
+                    disabled={isRunning || actionLoading[`${serviceId}_start`]}
                     onClick={() => controlService(serviceId, "start")}
                   >
                     {actionLoading[`${serviceId}_start`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
@@ -131,7 +121,7 @@ export default function ServicesPage() {
                   <Button
                     variant="contained"
                     color="error"
-                    disabled={!serviceData.running || actionLoading[`${serviceId}_stop`]}
+                    disabled={!isRunning || actionLoading[`${serviceId}_stop`]}
                     onClick={() => controlService(serviceId, "stop")}
                   >
                     {actionLoading[`${serviceId}_stop`] ? <CircularProgress size={20} sx={{ mr: 1 }} /> : null}
