@@ -21,6 +21,7 @@ const SERVICE_LABELS: Record<string, string> = {
   flask_server: "Flask Server",
   relay_gateway: "Relay Gateway",
   heartbeat: "Crash Überwachung - Heartbeat",
+  websocket: "Websocket Server",
 };
 
 type Service = {
