@@ -39,7 +39,7 @@ export default function ImpressumPage() {
         </Typography>
         <Typography variant="body1" paragraph>
           <strong>Urheberrechtlicher Hinweis:</strong><br />
-          Die Inhalte dieser Website sind urheberrechtlich geschützt. Jegliche Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung von Matsuda Béla.
+          Die Inhalte dieser Website sind urheberrechtlich geschützt. Jegliche Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung.
         </Typography>
         <Typography variant="body1" paragraph>
           <strong>Haftungsausschluss:</strong><br />
