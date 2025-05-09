@@ -1,27 +1,21 @@
-/* Entferne Tailwind-Import! */
-/* @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
 /* Farbvariablen für Light/Dark Mode */
 :root {
-  --background: #121212;
-  --foreground: #ededed;
-  --color-primary: #90caf9;
-  --color-secondary: #f48fb1;
-  --color-muted: #b0bec5;
+  --background: #1a0025;
+  --foreground: #f8eafd;
+  --color-primary: #ab47bc;      /* kräftiges Lila */
+  --color-secondary: #f06292;    /* Pink */
+  --color-muted: #b39ddb;        /* blasses Lila */
   --font-sans: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'Fira Mono', 'Consolas', monospace;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    --background: #f5f7fa;
-    --foreground: #171717;
-    --color-primary: #1976d2;
-    --color-secondary: #ec407a;
-    --color-muted: #607d8b;
+    --background: #faf5fb;
+    --foreground: #23003a;
+    --color-primary: #8e24aa;      /* kräftiges Lila (light) */
+    --color-secondary: #d81b60;    /* Pink (light) */
+    --color-muted: #ce93d8;        /* blasses Lila (light) */
   }
 }
 
@@ -46,7 +40,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   border-radius: 1rem;
-  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.12);
+  box-shadow: 0 2px 16px 0 rgba(171,71,188,0.09);
   padding: 2rem;
   margin-bottom: 2rem;
   transition: box-shadow 0.2s;
