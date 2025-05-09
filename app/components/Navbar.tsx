@@ -65,8 +65,10 @@ export default function Navbar() {
   ];
 
   return (
-    <AppBar
+<AppBar
   position="static"
+  color="transparent" // oder "inherit"
+  elevation={4} // falls du einen Schatten willst
   sx={{
     backgroundColor: "#f06292", // Pink
     color: "#fff",              // Schriftfarbe
