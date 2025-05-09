@@ -73,6 +73,13 @@ export default function RufzeichenPage() {
           <Typography><b>Betriebsort:</b> {result.betriebsort}</Typography>
         </Paper>
       )}
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
+  <b>Hinweis:</b> Die angezeigten Daten stammen von der Bundesnetzagentur (
+  <a href="https://www.bundesnetzagentur.de/" target="_blank" rel="noopener noreferrer">
+    www.bundesnetzagentur.de
+  </a>
+  ). Es wird keine Gewähr für die Richtigkeit, Aktualität oder Vollständigkeit der Informationen übernommen. Eine Haftung ist ausgeschlossen.
+</Typography>
     </Box>
   );
 }
