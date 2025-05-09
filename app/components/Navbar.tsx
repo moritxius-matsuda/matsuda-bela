@@ -65,7 +65,13 @@ export default function Navbar() {
   ];
 
   return (
-    <AppBar position="static" color="primary" enableColorOnDark>
+    <AppBar
+  position="static"
+  sx={{
+    backgroundColor: "#f06292", // Pink
+    color: "#fff",              // Schriftfarbe
+  }}
+>
       <Toolbar
         sx={{
           display: "flex",
