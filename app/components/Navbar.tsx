@@ -59,6 +59,7 @@ export default function Navbar() {
   const navLinks = [
     { label: "HOME", href: "/" },
     ...(isSignedIn ? [{ label: "ADMIN", href: "/admin" }] : []),
+    { label: "Rufzeichenabfrage", href: "/rufzeichen" },
     { label: "IMPRESSUM & DSE", href: "/impressum" },
     { label: "SPAM-Policy", href: "/spam-policy" },
   ];
