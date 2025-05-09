@@ -8,13 +8,18 @@ export default function ImpressumPage() {
       <Box
         sx={{
           display: "flex",
-          gap: 6,
-          alignItems: "flex-start",
-          flexDirection: { xs: "column", md: "row" }, // mobil untereinander, ab md nebeneinander
+          flexDirection: { xs: "column", md: "row" },
+          gap: 4,
+          width: "100%",
         }}
       >
         {/* Linke Spalte: Impressum */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box
+          sx={{
+            flex: 1,
+            width: { xs: "100%", md: "50%" },
+          }}
+        >
           <Typography variant="h4" gutterBottom>
             Impressum
           </Typography>
@@ -69,7 +74,12 @@ export default function ImpressumPage() {
         </Box>
 
         {/* Rechte Spalte: Datenschutzerklärung */}
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box
+          sx={{
+            flex: 1,
+            width: { xs: "100%", md: "50%" },
+          }}
+        >
           <Typography variant="h4" gutterBottom>
             Datenschutzerklärung
           </Typography>
