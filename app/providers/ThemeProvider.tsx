@@ -9,15 +9,34 @@ const darkTheme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#90caf9",
+      main: "#ab47bc", // kräftiges Lila
+      contrastText: "#fff",
+    },
+    secondary: {
+      main: "#f06292", // Pink
+      contrastText: "#fff",
     },
     background: {
-      default: "#121212",
-      paper: "#1e1e1e",
+      default: "#1a0025",
+      paper: "#23113a",
+    },
+    text: {
+      primary: "#f8eafd",
+      secondary: "#b39ddb",
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica Neue", Arial, sans-serif',
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+          letterSpacing: 1,
+        },
+      },
+    },
   },
 });
 
