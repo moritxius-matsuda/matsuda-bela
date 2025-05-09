@@ -77,30 +77,30 @@ export default function Navbar() {
         }}
       >
         {/* Logo ganz links */}
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        height: { xs: 56, sm: 64 },
-        pr: 2, // Padding rechts
-      }}
-    >
-      <Link href="/" style={{ display: "flex", alignItems: "center" }}>
-        <img
-          src="https://moritxius.nl/img/rechteck-weiß.png"
-          alt="Logo"
-          style={{
-            height: "80%",       // 80% der Navbar-Höhe für etwas Luft
-            maxHeight: 48,       // Maximal 48px hoch (passt zu Material UI)
-            minHeight: 32,
-            padding: "4px 12px", // Oben/unten/links/rechts Padding
-            background: "transparent",
-            borderRadius: 6,
-            display: "block",
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            height: { xs: 56, sm: 64 },
+            pr: 2,
           }}
-        />
-      </Link>
-    </Box>
+        >
+          <Link href="/" style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="https://moritxius.nl/img/rechteck-weiß.png"
+              alt="Logo"
+              style={{
+                height: "80%",
+                maxHeight: 48,
+                minHeight: 32,
+                padding: "4px 12px",
+                background: "transparent",
+                borderRadius: 6,
+                display: "block",
+              }}
+            />
+          </Link>
+        </Box>
 
         {/* Links (Desktop) */}
         {!isMobile && (
@@ -108,14 +108,13 @@ export default function Navbar() {
             sx={{
               display: "flex",
               flexWrap: "wrap",
-              columnGap: 3, // horizontaler Abstand
-              rowGap: 0.5,  // vertikaler Abstand (z.B. 0.5 = 4px)
+              columnGap: 3,
+              rowGap: 0.5,
               flexDirection: "row",
               alignItems: "center",
               minWidth: 0,
             }}
           >
-        
             {navLinks.map((link) => (
               <Button
                 key={link.href}
@@ -124,8 +123,8 @@ export default function Navbar() {
                 href={link.href}
                 disableElevation
                 sx={{
-                  my: 0, // kein vertical margin
-                  py: 1, // vertikales Padding für Klickfläche
+                  my: 0,
+                  py: 1,
                   minWidth: 0,
                 }}
               >
