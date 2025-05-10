@@ -195,7 +195,7 @@ export default function Navbar() {
                 href="/guides/proxmox-hetzner"
                 onClick={handleGuidesMenuClose}
               >
-                Installation Proxmox auf Hetzner
+                Installation Proxmox auf Hetzner-VPS
               </MenuItem>
             </Menu>
           </Box>
