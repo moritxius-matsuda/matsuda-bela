@@ -1,16 +1,19 @@
+// app/providers/ThemeProvider.tsx
+"use client";
+
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ReactNode } from "react";
 
-const pinkTheme = createTheme({
+const darkTheme = createTheme({
   palette: {
     mode: "dark",
     primary: {
-      main: "#f06292", // Pink
+      main: "#ab47bc", // kräftiges Lila
       contrastText: "#fff",
     },
     secondary: {
-      main: "#ab47bc", // Lila als Secondary
+      main: "#f06292", // Pink
       contrastText: "#fff",
     },
     background: {
@@ -25,11 +28,21 @@ const pinkTheme = createTheme({
   typography: {
     fontFamily: '"Roboto", "Helvetica Neue", Arial, sans-serif',
   },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          fontWeight: 600,
+          letterSpacing: 1,
+        },
+      },
+    },
+  },
 });
 
 export function MuiThemeProvider({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider theme={pinkTheme}>
+    <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       {children}
     </ThemeProvider>

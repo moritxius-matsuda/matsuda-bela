@@ -65,15 +65,7 @@ export default function Navbar() {
   ];
 
   return (
-<AppBar
-  position="static"
-  color="transparent" // oder "inherit"
-  elevation={4} // falls du einen Schatten willst
-  sx={{
-    backgroundColor: "#f06292", // Pink
-    color: "#fff",              // Schriftfarbe
-  }}
->
+    <AppBar position="static" color="primary" enableColorOnDark>
       <Toolbar
         sx={{
           display: "flex",
@@ -195,7 +187,7 @@ export default function Navbar() {
                 href="/guides/proxmox-hetzner"
                 onClick={handleGuidesMenuClose}
               >
-                Installation Proxmox auf Hetzner-VPS
+                Installation Proxmox auf Hetzner
               </MenuItem>
             </Menu>
           </Box>
